@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const logger = require("./utils/logger");
 const notFoundHandler = require("./utils/notFoundHandler");
-
+const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 
 app.use(cors());
@@ -18,9 +18,11 @@ app.get("/", (req, res) => {
   res.send("Api is working");
 });
 
-app.use(notFoundHandler);
+// Routes
+app.use("/api/admin", adminRoutes);
 
 // Error handling middleware
+app.use(notFoundHandler);
 app.use((err, req, res, next) => {
   logger.error("Unhandled error:", err);
   res.status(500).json({ message: "Internal server error" });
