@@ -479,6 +479,38 @@ const deleteQuestion = async (questionId) => {
   }
 };
 
+const openRegistration = async () => {
+  // Check if GameState exists, if not create one
+  let gameState = await GameState.findOne();
+  if (!gameState) {
+    gameState = new GameState({
+      isRegistrationOpen: true,
+      currentRound: 1,
+    });
+  } else {
+    gameState.isRegistrationOpen = true;
+  }
+
+  await gameState.save();
+  return { message: "Registration opened successfully" };
+};
+
+const closeRegistration = async () => {
+  await GameState.updateOne(
+    {},
+    { isRegistrationOpen: false },
+    { upsert: true }
+  );
+  return { message: "Registration closed successfully" };
+};
+
+const getRegistrationStatus = async () => {
+  const gameState = await GameState.findOne();
+  return {
+    isRegistrationOpen: gameState ? gameState.isRegistrationOpen : false,
+  };
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -490,4 +522,7 @@ module.exports = {
   getQuestionsByRound,
   updateQuestion,
   deleteQuestion,
+  openRegistration,
+  closeRegistration,
+  getRegistrationStatus,
 };
