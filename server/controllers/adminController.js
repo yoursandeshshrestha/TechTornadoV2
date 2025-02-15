@@ -93,6 +93,17 @@ const updateQuestion = async (req, res) => {
   }
 };
 
+const deleteQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.deleteQuestion(id);
+    res.json(result);
+  } catch (error) {
+    logger.error("Delete question error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -101,4 +112,5 @@ module.exports = {
   getAllQuestions,
   getQuestionsByRound,
   updateQuestion,
+  deleteQuestion,
 };
