@@ -82,9 +82,32 @@ const endRound = async (round) => {
 };
 
 const getScores = async () => {
-  const teams = await Team.find({}, "teamName scores currentRound");
-  return teams;
+  try {
+    const teams = await Team.find({}, "teamName scores currentRound");
+
+    if (!teams || teams.length === 0) {
+      return {
+        success: false,
+        message: "No teams found in the database",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Teams retrieved successfully",
+      data: teams,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error retrieving teams: " + error.message,
+      data: null,
+    };
+  }
 };
+
+module.exports = { getScores };
 
 const createQuestion = async (questionData) => {
   const question = new Question(questionData);
