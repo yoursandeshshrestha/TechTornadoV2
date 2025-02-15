@@ -13,5 +13,6 @@ router.get(
   authenticateAdmin,
   adminController.getQuestionsByRound
 );
+router.put("/questions/:id", authenticateAdmin, adminController.updateQuestion);
 
 module.exports = router;
