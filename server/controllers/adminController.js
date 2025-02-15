@@ -74,6 +74,25 @@ const getQuestionsByRound = async (req, res) => {
   }
 };
 
+const updateQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = {
+      content: req.body.content,
+      answer: req.body.answer,
+      type: req.body.type,
+      points: req.body.points,
+      hints: req.body.hints,
+    };
+
+    const question = await adminService.updateQuestion(id, updateData);
+    res.json(question);
+  } catch (error) {
+    logger.error("Update question error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -81,4 +100,5 @@ module.exports = {
   createQuestion,
   getAllQuestions,
   getQuestionsByRound,
+  updateQuestion,
 };
