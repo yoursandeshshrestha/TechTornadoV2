@@ -7,5 +7,6 @@ router.post("/register", adminController.register);
 router.post("/login", adminController.login);
 router.get("/scores", authenticateAdmin, adminController.getScores);
 router.post("/questions", authenticateAdmin, adminController.createQuestion);
+router.get("/questions", authenticateAdmin, adminController.getAllQuestions);
 
 module.exports = router;
