@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const logger = require("./utils/logger");
+const notFoundHandler = require("./utils/notFoundHandler");
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Api is working");
 });
+
+app.use(notFoundHandler);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
