@@ -23,7 +23,18 @@ const login = async (req, res) => {
   }
 };
 
+const getScores = async (req, res) => {
+  try {
+    const scores = await adminService.getScores();
+    res.json(scores);
+  } catch (error) {
+    logger.error("Get scores error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
+  getScores,
 };
