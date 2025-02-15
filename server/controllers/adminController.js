@@ -104,6 +104,36 @@ const deleteQuestion = async (req, res) => {
   }
 };
 
+const openRegistration = async (req, res) => {
+  try {
+    const result = await adminService.openRegistration();
+    res.json(result);
+  } catch (error) {
+    logger.error("Open registration error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const closeRegistration = async (req, res) => {
+  try {
+    const result = await adminService.closeRegistration();
+    res.json(result);
+  } catch (error) {
+    logger.error("Close registration error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const getRegistrationStatus = async (req, res) => {
+  try {
+    const status = await adminService.getRegistrationStatus();
+    res.json(status);
+  } catch (error) {
+    logger.error("Get registration status error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -113,4 +143,7 @@ module.exports = {
   getQuestionsByRound,
   updateQuestion,
   deleteQuestion,
+  openRegistration,
+  closeRegistration,
+  getRegistrationStatus,
 };
