@@ -19,5 +19,20 @@ router.delete(
   authenticateAdmin,
   adminController.deleteQuestion
 );
+router.post(
+  "/registration/open",
+  authenticateAdmin,
+  adminController.openRegistration
+);
+router.post(
+  "/registration/close",
+  authenticateAdmin,
+  adminController.closeRegistration
+);
+router.get(
+  "/registration/status",
+
+  adminController.getRegistrationStatus
+);
 
 module.exports = router;
