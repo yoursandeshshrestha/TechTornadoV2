@@ -33,8 +33,29 @@ const getScores = async (req, res) => {
   }
 };
 
+const createQuestion = async (req, res) => {
+  try {
+    const questionData = {
+      round: req.body.round,
+      questionNumber: req.body.questionNumber,
+      content: req.body.content,
+      answer: req.body.answer,
+      type: req.body.type,
+      points: req.body.points,
+      hints: req.body.hints || [],
+    };
+
+    const question = await adminService.createQuestion(questionData);
+    res.status(201).json(question);
+  } catch (error) {
+    logger.error("Create question error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getScores,
+  createQuestion,
 };
