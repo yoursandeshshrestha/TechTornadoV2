@@ -53,9 +53,20 @@ const createQuestion = async (req, res) => {
   }
 };
 
+const getAllQuestions = async (req, res) => {
+  try {
+    const questions = await adminService.getAllQuestions();
+    res.json(questions);
+  } catch (error) {
+    logger.error("Get questions error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getScores,
   createQuestion,
+  getAllQuestions,
 };
