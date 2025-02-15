@@ -8,5 +8,10 @@ router.post("/login", adminController.login);
 router.get("/scores", authenticateAdmin, adminController.getScores);
 router.post("/questions", authenticateAdmin, adminController.createQuestion);
 router.get("/questions", authenticateAdmin, adminController.getAllQuestions);
+router.get(
+  "/questions/:round",
+  authenticateAdmin,
+  adminController.getQuestionsByRound
+);
 
 module.exports = router;
