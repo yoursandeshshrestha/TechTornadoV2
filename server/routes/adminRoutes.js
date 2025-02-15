@@ -14,5 +14,10 @@ router.get(
   adminController.getQuestionsByRound
 );
 router.put("/questions/:id", authenticateAdmin, adminController.updateQuestion);
+router.delete(
+  "/questions/:id",
+  authenticateAdmin,
+  adminController.deleteQuestion
+);
 
 module.exports = router;
