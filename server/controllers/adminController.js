@@ -63,10 +63,22 @@ const getAllQuestions = async (req, res) => {
   }
 };
 
+const getQuestionsByRound = async (req, res) => {
+  try {
+    const { round } = req.params;
+    const questions = await adminService.getQuestionsByRound(parseInt(round));
+    res.json(questions);
+  } catch (error) {
+    logger.error("Get questions by round error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getScores,
   createQuestion,
   getAllQuestions,
+  getQuestionsByRound,
 };
