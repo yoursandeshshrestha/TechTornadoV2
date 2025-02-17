@@ -9,13 +9,10 @@ const io = initializeSocket(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Simple console logging instead of using logger initially
-console.log(`Server running on port ${PORT}`);
-
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`);
+      console.log(`Server is listening on port http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
