@@ -2,10 +2,9 @@ const Admin = require("../models/Admin");
 const Team = require("../models/Team");
 const GameState = require("../models/gameState");
 const { getIO } = require("../config/socket");
-const { getRoundDuration } = require("../utils/helpers");
+const { getRoundDuration, calculatePoints } = require("../utils/helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const logger = require("../utils/logger");
 const Question = require("../models/Question");
 
 const registerAdmin = async (username, password) => {
@@ -511,6 +510,57 @@ const getRegistrationStatus = async () => {
   };
 };
 
+const createBulkQuestions = async (questions) => {
+  try {
+    // Group questions by round for duplicate checking
+    const questionsByRound = {};
+    questions.forEach((q) => {
+      if (!questionsByRound[q.round]) {
+        questionsByRound[q.round] = new Set();
+      }
+      questionsByRound[q.round].add(q.questionNumber);
+    });
+
+    // Check for duplicate question numbers within rounds
+    for (const round in questionsByRound) {
+      const existingQuestions = await Question.find({
+        round: parseInt(round),
+      }).select("questionNumber");
+
+      for (const existing of existingQuestions) {
+        if (questionsByRound[round].has(existing.questionNumber)) {
+          throw new Error(
+            `Question ${existing.questionNumber} already exists in round ${round}`
+          );
+        }
+      }
+    }
+
+    // Create questions without transaction
+    const createdQuestions = await Question.insertMany(questions);
+
+    return {
+      success: true,
+      message: `Successfully created ${createdQuestions.length} questions`,
+      data: createdQuestions,
+    };
+  } catch (error) {
+    if (error.code === 11000) {
+      return {
+        success: false,
+        message: "Duplicate question numbers detected within a round",
+        error: error.message,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Failed to create questions",
+      error: error.message,
+    };
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -525,4 +575,5 @@ module.exports = {
   openRegistration,
   closeRegistration,
   getRegistrationStatus,
+  createBulkQuestions,
 };
