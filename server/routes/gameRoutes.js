@@ -16,7 +16,7 @@ router.get(
   handleGetQuestion
 );
 router.get(
-  "/questions/round/:roundNumber",
+  "/questionsbyround/roundNumber/:roundNumber",
   authenticateTeam,
   handleGetAllQuestionsByRound
 );
