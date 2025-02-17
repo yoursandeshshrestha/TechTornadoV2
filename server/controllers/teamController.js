@@ -1,4 +1,4 @@
-const { registerTeam } = require("../services/teamService");
+const { registerTeam, loginTeam } = require("../services/teamService");
 
 const register = async (req, res) => {
   try {
@@ -16,4 +16,22 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+  try {
+    const { teamName, password } = req.body;
+    const loginResult = await loginTeam(teamName, password);
+
+    res.status(200).json({
+      success: true,
+      ...loginResult,
+      message: "Login successful",
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { register, login };
