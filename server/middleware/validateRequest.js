@@ -50,7 +50,13 @@ const registerValidation = [
     .withMessage("Member name must be between 2 and 50 characters"),
 ];
 
+const loginValidation = [
+  check("teamName").trim().notEmpty().withMessage("Team name is required"),
+  check("password").trim().notEmpty().withMessage("Password is required"),
+];
+
 module.exports = {
   validateRequest,
   registerValidation,
+  loginValidation,
 };
