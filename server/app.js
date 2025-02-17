@@ -4,6 +4,8 @@ const logger = require("./utils/logger");
 const notFoundHandler = require("./utils/notFoundHandler");
 const adminRoutes = require("./routes/adminRoutes");
 const teamRoutes = require("./routes/teamRoutes");
+const gameRoutes = require("./routes/gameRoutes");
+const { initializeGameState } = require("./services/gameService");
 
 const app = express();
 
@@ -16,6 +18,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Test Route
 app.get("/", (req, res) => {
   res.send("Api is working");
 });
@@ -23,6 +26,16 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/game", gameRoutes);
+
+// Initialize game state when application start
+initializeGameState()
+  .then(() => {
+    logger.info("Game state initialized successfully");
+  })
+  .catch((error) => {
+    logger.error("Failed to initialize game state:", error);
+  });
 
 // Error handling middleware
 app.use(notFoundHandler);
