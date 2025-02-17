@@ -4,6 +4,7 @@ const teamController = require("../controllers/teamController");
 const {
   registerValidation,
   validateRequest,
+  loginValidation,
 } = require("../middleware/validateRequest");
 
 router.post(
@@ -12,5 +13,6 @@ router.post(
   validateRequest,
   teamController.register
 );
+router.post("/login", loginValidation, validateRequest, teamController.login);
 
 module.exports = router;
