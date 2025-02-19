@@ -175,28 +175,11 @@ const loginAdmin = async (username, password) => {
       throw new Error("Error generating authentication token");
     }
 
-    let refreshToken;
-    try {
-      refreshToken = jwt.sign(
-        { adminId: admin._id },
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      await Admin.updateOne(
-        { _id: admin._id },
-        { $set: { refreshToken: await bcrypt.hash(refreshToken, 10) } }
-      );
-    } catch (refreshError) {
-      console.error("Error generating refresh token:", refreshError);
-    }
-
     return {
       success: true,
       message: "Login successful",
       data: {
         token,
-        refreshToken,
         admin: {
           id: admin._id,
           username: admin.username,
