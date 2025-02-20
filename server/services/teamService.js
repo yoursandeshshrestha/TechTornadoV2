@@ -3,6 +3,7 @@ const GameState = require("../models/gameState");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
+const { broadcastLeaderboard } = require("../config/socket");
 
 const generateToken = (teamId) => {
   return jwt.sign({ teamId }, process.env.JWT_SECRET, { expiresIn: "24h" });
@@ -60,6 +61,8 @@ const registerTeam = async (teamData) => {
 
     await team.save();
     logger.info(`Team registered successfully: ${team.teamName}`);
+
+    await broadcastLeaderboard();
 
     // Generate token
     const token = generateToken(team._id);
