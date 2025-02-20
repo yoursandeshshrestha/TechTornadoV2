@@ -2,6 +2,7 @@ const adminService = require("../services/adminService");
 const { calculatePoints } = require("../utils/helpers");
 const logger = require("../utils/logger");
 const Question = require("../models/Question");
+const GameState = require("../models/gameState");
 
 const register = async (req, res) => {
   try {
@@ -198,16 +199,6 @@ const closeRegistration = async (req, res) => {
   }
 };
 
-const getRegistrationStatus = async (req, res) => {
-  try {
-    const status = await adminService.getRegistrationStatus();
-    res.json(status);
-  } catch (error) {
-    logger.error("Get registration status error:", error);
-    res.status(400).json({ message: error.message });
-  }
-};
-
 const createBulkQuestions = async (req, res) => {
   try {
     const questions = req.body;
@@ -374,7 +365,6 @@ module.exports = {
   deleteQuestion,
   openRegistration,
   closeRegistration,
-  getRegistrationStatus,
   createBulkQuestions,
   startRound,
 };
