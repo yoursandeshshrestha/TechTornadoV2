@@ -2,7 +2,7 @@ const Admin = require("../models/Admin");
 const Team = require("../models/Team");
 const GameState = require("../models/gameState");
 const { getIO } = require("../config/socket");
-const { getRoundDuration, calculatePoints } = require("../utils/helpers");
+const { getRoundDuration } = require("../utils/helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Question = require("../models/Question");
@@ -467,7 +467,7 @@ const openRegistration = async () => {
   if (!gameState) {
     gameState = new GameState({
       isRegistrationOpen: true,
-      currentRound: 1,
+      currentRound: 0,
     });
   } else {
     gameState.isRegistrationOpen = true;
