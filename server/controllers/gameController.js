@@ -1,19 +1,12 @@
-const {
-  submitAnswer,
-  skipQuestion,
-  getQuestion,
-  updateLeaderboard,
-  getAllQuestionsByRound,
-} = require("../services/gameService");
+const gameService = require("../services/gameService");
 const logger = require("../utils/logger");
-const Question = require("../models/Question");
 
 const handleSubmitAnswer = async (req, res) => {
   try {
     const { roundNumber, questionNumber, answer } = req.body;
     const teamId = req.team.id;
 
-    const result = await submitAnswer(
+    const result = await gameService.submitAnswer(
       teamId,
       roundNumber,
       questionNumber,
@@ -38,7 +31,7 @@ const handleGetQuestion = async (req, res) => {
     const { roundNumber, questionNumber } = req.params;
     const teamId = req.team.id;
 
-    const question = await getQuestion(
+    const question = await gameService.getQuestion(
       teamId,
       parseInt(roundNumber),
       parseInt(questionNumber)
@@ -62,7 +55,10 @@ const handleGetAllQuestionsByRound = async (req, res) => {
     const { roundNumber } = req.params;
     const teamId = req.team.id;
 
-    const questions = await getAllQuestionsByRound(teamId, roundNumber);
+    const questions = await gameService.getAllQuestionsByRound(
+      teamId,
+      roundNumber
+    );
 
     res.json({
       success: true,
@@ -82,7 +78,11 @@ const handleSkipQuestion = async (req, res) => {
     const { roundNumber, questionNumber } = req.body;
     const teamId = req.team.id;
 
-    const result = await skipQuestion(teamId, roundNumber, questionNumber);
+    const result = await gameService.skipQuestion(
+      teamId,
+      roundNumber,
+      questionNumber
+    );
 
     res.json({
       success: true,
@@ -99,7 +99,7 @@ const handleSkipQuestion = async (req, res) => {
 
 const handleGetLeaderboard = async (req, res) => {
   try {
-    const leaderboard = await updateLeaderboard();
+    const leaderboard = await gameService.updateLeaderboard();
     res.json({
       success: true,
       data: leaderboard,
@@ -113,10 +113,32 @@ const handleGetLeaderboard = async (req, res) => {
   }
 };
 
+const getCurrentGameState = async (req, res) => {
+  try {
+    const gameState = await gameService.getCurrentGameState();
+    res.json(gameState);
+  } catch (error) {
+    logger.error("Get game state error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const getRegistrationStatus = async (req, res) => {
+  try {
+    const status = await gameService.getRegistrationStatus();
+    res.json(status);
+  } catch (error) {
+    logger.error("Get registration status error:", error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   handleSubmitAnswer,
   handleSkipQuestion,
   handleGetLeaderboard,
   handleGetAllQuestionsByRound,
   handleGetQuestion,
+  getCurrentGameState,
+  getRegistrationStatus,
 };
