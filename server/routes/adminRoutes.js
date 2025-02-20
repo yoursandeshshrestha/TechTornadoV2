@@ -12,7 +12,6 @@ const {
   deleteQuestion,
   openRegistration,
   closeRegistration,
-  getRegistrationStatus,
   createBulkQuestions,
   startRound,
 } = require("../controllers/adminController");
@@ -23,6 +22,8 @@ router.post("/login", login);
 
 // Protected routes - require admin authentication
 router.get("/scores", authenticateAdmin, getScores);
+
+// Question Related Routes
 router.post("/questions", authenticateAdmin, createQuestion);
 router.get("/questions", authenticateAdmin, getAllQuestions);
 router.get("/questions/round/:round", authenticateAdmin, getQuestionsByRound);
@@ -30,10 +31,11 @@ router.put("/questions/:id", authenticateAdmin, updateQuestion);
 router.delete("/questions/:id", authenticateAdmin, deleteQuestion);
 router.post("/questions/bulk", authenticateAdmin, createBulkQuestions);
 
-// Registration control routes
+// Round Start
 router.post("/round/start", authenticateAdmin, startRound);
+
+// Toggle Registration
 router.post("/registration/open", authenticateAdmin, openRegistration);
 router.post("/registration/close", authenticateAdmin, closeRegistration);
-router.get("/registration/status", getRegistrationStatus);
 
 module.exports = router;
