@@ -29,13 +29,13 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/game", gameRoutes);
 
 // Initialize game state when application start
-initializeGameState()
-  .then(() => {
-    logger.info("Game state initialized successfully");
-  })
-  .catch((error) => {
-    logger.error("Failed to initialize game state:", error);
-  });
+// initializeGameState()
+//   .then(() => {
+//     logger.info("Game state initialized successfully");
+//   })
+//   .catch((error) => {
+//     logger.error("Failed to initialize game state:", error);
+//   });
 
 // Error handling middleware
 app.use(notFoundHandler);
