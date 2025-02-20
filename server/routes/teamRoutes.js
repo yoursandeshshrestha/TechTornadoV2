@@ -13,6 +13,7 @@ router.post(
   validateRequest,
   teamController.register
 );
+
 router.post("/login", loginValidation, validateRequest, teamController.login);
 
 module.exports = router;
