@@ -6,6 +6,8 @@ const {
   handleGetLeaderboard,
   handleGetQuestion,
   handleGetAllQuestionsByRound,
+  getCurrentGameState,
+  getRegistrationStatus,
 } = require("../controllers/gameController");
 const { authenticateTeam } = require("../middleware/auth");
 
@@ -21,6 +23,10 @@ router.get(
   handleGetAllQuestionsByRound
 );
 router.post("/skip-question", authenticateTeam, handleSkipQuestion);
+
+// Routes which doesn't need token
 router.get("/leaderboard", handleGetLeaderboard);
+router.get("/current-state", getCurrentGameState);
+router.get("/registration/status", getRegistrationStatus);
 
 module.exports = router;
