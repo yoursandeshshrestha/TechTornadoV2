@@ -164,6 +164,39 @@ const getQuestion = async (teamId, roundNumber, questionNumber) => {
   }
 };
 
+const getAllQuestionsByRound = async (teamId, roundNumber) => {
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      throw new Error("Team not found");
+    }
+
+    const parsedRound = parseInt(roundNumber);
+
+    const questions = await Question.find({ round: parsedRound })
+      .select("-answer")
+      .sort({ questionNumber: 1 });
+
+    if (!questions || questions.length === 0) {
+      throw new Error(`No questions found for round ${parsedRound}`);
+    }
+
+    const questionsWithStatus = questions.map((question) => ({
+      ...question.toObject(),
+      isAnswered: team.hasAnsweredQuestion(
+        parsedRound,
+        question.questionNumber
+      ),
+      isSkipped: team.hasSkippedQuestion(parsedRound, question.questionNumber),
+    }));
+
+    return questionsWithStatus;
+  } catch (error) {
+    logger.error("Error getting questions by round:", error);
+    throw error;
+  }
+};
+
 // Skip a question
 const skipQuestion = async (teamId, roundNumber, questionNumber) => {
   try {
@@ -198,6 +231,9 @@ const updateLeaderboard = async () => {
       {
         teamName: 1,
         scores: 1,
+        memberOne: 1,
+        memberTwo: 1,
+        collegeName: 1, // Added collegeName to projection
       }
     )
       .sort({
@@ -207,15 +243,14 @@ const updateLeaderboard = async () => {
 
     const leaderboardData = teams.map((team) => ({
       teamName: team.teamName,
+      collegeName: team.collegeName, // Added collegeName to the output
       totalScore:
         team.scores.round1 +
         team.scores.round2 +
         team.scores.round3.challenge1 +
         team.scores.round3.challenge2,
+      teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
     }));
-
-    const io = getIO();
-    io.emit("leaderboardUpdate", leaderboardData);
 
     return leaderboardData;
   } catch (error) {
@@ -224,38 +259,47 @@ const updateLeaderboard = async () => {
   }
 };
 
-const getAllQuestionsByRound = async (teamId, roundNumber) => {
+const getCurrentGameState = async () => {
   try {
-    const team = await Team.findById(teamId);
-    if (!team) {
-      throw new Error("Team not found");
-    }
-
-    const parsedRound = parseInt(roundNumber);
-
-    const questions = await Question.find({ round: parsedRound })
-      .select("-answer")
-      .sort({ questionNumber: 1 });
-
-    if (!questions || questions.length === 0) {
-      throw new Error(`No questions found for round ${parsedRound}`);
-    }
-
-    const questionsWithStatus = questions.map((question) => ({
-      ...question.toObject(),
-      isAnswered: team.hasAnsweredQuestion(
-        parsedRound,
-        question.questionNumber
-      ),
-      isSkipped: team.hasSkippedQuestion(parsedRound, question.questionNumber),
-    }));
-
-    return questionsWithStatus;
+    const gameState = (await GameState.findOne()) || {
+      currentRound: 0,
+      isGameActive: false,
+    };
+    return {
+      currentRound: gameState.currentRound,
+      isGameActive: gameState.isGameActive,
+    };
   } catch (error) {
-    logger.error("Error getting questions by round:", error);
+    logger.error("Get game state error:", error);
     throw error;
   }
 };
+
+const getCurrentRound = async () => {
+  try {
+    const gameState = await GameState.findOne();
+    return {
+      currentRound: gameState ? gameState.currentRound : 0,
+      isGameActive: gameState ? gameState.isGameActive : false,
+    };
+  } catch (error) {
+    logger.error("Get current round error:", error);
+    throw error;
+  }
+};
+
+const getRegistrationStatus = async () => {
+  try {
+    const gameState = await GameState.findOne();
+    return {
+      isRegistrationOpen: gameState ? gameState.isRegistrationOpen : false,
+    };
+  } catch (error) {
+    logger.error("Get registration status error:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   initializeGameState,
   submitAnswer,
@@ -263,4 +307,7 @@ module.exports = {
   skipQuestion,
   updateLeaderboard,
   getAllQuestionsByRound,
+  getCurrentGameState,
+  getCurrentRound,
+  getRegistrationStatus,
 };
