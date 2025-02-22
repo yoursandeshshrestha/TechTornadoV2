@@ -14,6 +14,7 @@ const {
   closeRegistration,
   createBulkQuestions,
   startRound,
+  terminateRoundController,
 } = require("../controllers/adminController");
 
 // Auth routes
@@ -31,8 +32,9 @@ router.put("/questions/:id", authenticateAdmin, updateQuestion);
 router.delete("/questions/:id", authenticateAdmin, deleteQuestion);
 router.post("/questions/bulk", authenticateAdmin, createBulkQuestions);
 
-// Round Start
+// Round Related
 router.post("/round/start", authenticateAdmin, startRound);
+router.post("/round/terminate", authenticateAdmin, terminateRoundController);
 
 // Toggle Registration
 router.post("/registration/open", authenticateAdmin, openRegistration);
