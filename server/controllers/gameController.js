@@ -4,12 +4,19 @@ const logger = require("../utils/logger");
 const handleSubmitAnswer = async (req, res) => {
   try {
     const { roundNumber, questionNumber, answer } = req.body;
-    const teamId = req.team.id;
+    const teamId = req.team.id; // Assuming you have middleware that sets team info
+
+    if (!roundNumber || !questionNumber || !answer) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
 
     const result = await gameService.submitAnswer(
       teamId,
-      roundNumber,
-      questionNumber,
+      parseInt(roundNumber),
+      parseInt(questionNumber),
       answer
     );
 
