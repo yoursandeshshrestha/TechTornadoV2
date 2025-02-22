@@ -204,26 +204,34 @@ const loginAdmin = async (username, password) => {
 };
 
 const startRound = async (round) => {
-  const duration = getRoundDuration(round);
-  const endTime = new Date(Date.now() + duration);
+  try {
+    const duration = getRoundDuration(round);
+    const endTime = new Date(Date.now() + duration);
 
-  await GameState.updateOne(
-    {},
-    {
-      currentRound: round,
-      roundStartTime: new Date(),
-      roundEndTime: endTime,
-    }
-  );
+    const gameState = await GameState.findOneAndUpdate(
+      {}, // Empty filter means it updates the first found document
+      {
+        currentRound: round,
+        isGameActive: true,
+        roundStartTime: new Date(),
+        roundEndTime: endTime,
+        isPaused: false,
+      },
+      { upsert: true, new: true } // upsert ensures a new document is created if none exists
+    );
 
-  getIO().emit("roundStart", { round, endTime });
+    getIO().emit("roundStart", { round, endTime });
 
-  // Schedule round end
-  setTimeout(async () => {
-    await endRound(round);
-  }, duration);
+    // Schedule round end
+    setTimeout(async () => {
+      await endRound(round);
+    }, duration);
 
-  return { message: `Round ${round} started`, endTime };
+    return { message: `Round ${round} started`, endTime };
+  } catch (error) {
+    console.error("Start round error:", error);
+    throw new Error("Failed to start round: " + error.message);
+  }
 };
 
 const endRound = async (round) => {
@@ -544,6 +552,29 @@ const createBulkQuestions = async (questions) => {
   }
 };
 
+const terminateRound = async () => {
+  const updatedState = await GameState.findOneAndUpdate(
+    {},
+    {
+      isGameActive: false,
+      currentRound: 0,
+      roundStartTime: null,
+      roundEndTime: null,
+      remainingTime: null,
+      isPaused: false,
+    },
+    { new: true }
+  );
+
+  getIO().emit("roundTerminated", {
+    message: "Round terminated",
+    currentRound: 0,
+    isGameActive: false,
+  });
+
+  return updatedState;
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -559,4 +590,5 @@ module.exports = {
   closeRegistration,
   getRegistrationStatus,
   createBulkQuestions,
+  terminateRound,
 };
