@@ -3,6 +3,7 @@ const Team = require("../models/Team");
 const Question = require("../models/Question");
 const { getIO } = require("../config/socket");
 const logger = require("../utils/logger");
+const socketService = require("../config/socket");
 
 // Initialize game state
 const initializeGameState = async () => {
@@ -27,9 +28,9 @@ const initializeGameState = async () => {
   }
 };
 
-// Submit Answer
 const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
   try {
+    // Validate the team
     const team = await Team.findById(teamId);
     if (!team) {
       throw new Error("Team not found");
@@ -37,17 +38,19 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
 
     // Check if already answered
     if (team.hasAnsweredQuestion(roundNumber, questionNumber)) {
-      throw new Error("Your team has already answered this question correctly");
+      throw new Error("Question already answered correctly");
     }
 
+    // Get the question
     const question = await Question.findOne({
       round: roundNumber,
-      questionNumber,
+      questionNumber: questionNumber,
     });
     if (!question) {
       throw new Error("Question not found");
     }
 
+    // Verify game state
     const gameState = await GameState.findOne();
     if (gameState.currentRound !== roundNumber) {
       throw new Error("This round is not active");
@@ -60,12 +63,14 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
     let isCorrect = false;
     let pointsEarned = 0;
 
+    // Special handling for round 3
     if (roundNumber === 3) {
       const challengeNumber = questionNumber;
       if (!team.canAttemptQuestion(roundNumber, challengeNumber)) {
         throw new Error("Maximum attempts reached for this challenge");
       }
 
+      // Increment attempts
       await Team.updateOne(
         { _id: teamId },
         {
@@ -93,6 +98,7 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
         );
       }
     } else {
+      // Normal rounds (1 and 2)
       isCorrect = answer.toLowerCase() === question.answer.toLowerCase();
       if (isCorrect) {
         pointsEarned = question.points;
@@ -109,8 +115,62 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
       }
     }
 
+    // If points were earned, update leaderboard via socket
     if (pointsEarned > 0) {
-      await updateLeaderboard();
+      try {
+        // Get updated team data
+        const updatedTeam = await Team.findById(teamId)
+          .select("teamName scores memberOne memberTwo collegeName")
+          .lean();
+
+        // Calculate total score
+        const totalScore =
+          updatedTeam.scores.round1 +
+          updatedTeam.scores.round2 +
+          updatedTeam.scores.round3.challenge1 +
+          updatedTeam.scores.round3.challenge2;
+
+        // Emit score update
+        const io = socketService.getIO();
+        io.emit("scoreUpdate", {
+          teamName: updatedTeam.teamName,
+          totalScore: totalScore,
+          teamMembers: [updatedTeam.memberOne, updatedTeam.memberTwo].filter(
+            Boolean
+          ),
+          collegeName: updatedTeam.collegeName,
+        });
+
+        // Update full leaderboard
+        const teams = await Team.find(
+          {},
+          {
+            teamName: 1,
+            scores: 1,
+            memberOne: 1,
+            memberTwo: 1,
+            collegeName: 1,
+          }
+        ).lean();
+
+        const leaderboardData = teams
+          .map((team) => ({
+            teamName: team.teamName,
+            collegeName: team.collegeName,
+            totalScore:
+              team.scores.round1 +
+              team.scores.round2 +
+              team.scores.round3.challenge1 +
+              team.scores.round3.challenge2,
+            teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
+          }))
+          .sort((a, b) => b.totalScore - a.totalScore)
+          .slice(0, 10);
+
+        io.emit("leaderboardUpdate", leaderboardData);
+      } catch (socketError) {
+        logger.error("Error emitting score updates:", socketError);
+      }
     }
 
     return {
@@ -119,7 +179,7 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
       nextQuestion: isCorrect ? questionNumber + 1 : questionNumber,
     };
   } catch (error) {
-    logger.error("Error submitting answer:", error);
+    logger.error("Error in submitAnswer:", error);
     throw error;
   }
 };
