@@ -3,6 +3,8 @@ const { calculatePoints } = require("../utils/helpers");
 const logger = require("../utils/logger");
 const Question = require("../models/Question");
 const GameState = require("../models/gameState");
+const { updateRegistrationStatus } = require("../config/socket");
+const socketService = require("../config/socket");
 
 const register = async (req, res) => {
   try {
@@ -182,6 +184,8 @@ const deleteQuestion = async (req, res) => {
 const openRegistration = async (req, res) => {
   try {
     const result = await adminService.openRegistration();
+    // Update socket state after successful database update
+    await updateRegistrationStatus("open");
     res.json(result);
   } catch (error) {
     logger.error("Open registration error:", error);
@@ -192,6 +196,8 @@ const openRegistration = async (req, res) => {
 const closeRegistration = async (req, res) => {
   try {
     const result = await adminService.closeRegistration();
+    // Update socket state after successful database update
+    await updateRegistrationStatus("closed");
     res.json(result);
   } catch (error) {
     logger.error("Close registration error:", error);
@@ -354,6 +360,23 @@ const startRound = async (req, res) => {
   }
 };
 
+const terminateRoundController = async (req, res) => {
+  try {
+    await socketService.terminateRound();
+
+    res.status(200).json({
+      success: true,
+      message: "Round terminated successfully",
+    });
+  } catch (error) {
+    logger.error("Error in terminateRoundController:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to terminate round",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -367,4 +390,5 @@ module.exports = {
   closeRegistration,
   createBulkQuestions,
   startRound,
+  terminateRoundController,
 };
