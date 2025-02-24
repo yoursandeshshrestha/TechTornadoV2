@@ -362,7 +362,7 @@ const startRound = async (req, res) => {
 
 const terminateRoundController = async (req, res) => {
   try {
-    await socketService.terminateRound();
+    await adminService.terminateRound();
 
     res.status(200).json({
       success: true,
