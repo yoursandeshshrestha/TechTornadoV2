@@ -1,7 +1,6 @@
 const socketIo = require("socket.io");
 const logger = require("../utils/logger");
 const Team = require("../models/Team");
-const { updateLeaderboard } = require("../services/gameService");
 const GameState = require("../models/gameState");
 
 let io;
@@ -10,6 +9,7 @@ let gameState = {
   isRegistrationOpen: false,
   currentRound: 0,
   activeUsers: 0,
+  endTime: null,
 };
 
 // Initialize state from database
@@ -21,7 +21,8 @@ const initializeGameState = async () => {
         gameStatus: dbGameState.currentRound > 0 ? "In Progress" : "Stopped",
         isRegistrationOpen: dbGameState.isRegistrationOpen,
         currentRound: dbGameState.currentRound,
-        activeUsers: 0, // This will be updated when leaderboard is fetched
+        activeUsers: 0,
+        endTime: dbGameState.roundEndTime,
       };
     }
     logger.info("Game state initialized:", gameState);
@@ -30,8 +31,74 @@ const initializeGameState = async () => {
   }
 };
 
+// Helper function to get current game state from DB
+const getCurrentGameState = async () => {
+  const dbGameState = await GameState.findOne();
+  return {
+    gameStatus: dbGameState.currentRound > 0 ? "In Progress" : "Stopped",
+    isRegistrationOpen: dbGameState.isRegistrationOpen,
+    currentRound: dbGameState.currentRound,
+    isGameActive: dbGameState.isGameActive,
+    endTime: dbGameState.roundEndTime,
+  };
+};
+
+// Helper function to broadcast current game state
+const broadcastGameState = async () => {
+  if (!io) return;
+
+  try {
+    const currentState = await getCurrentGameState();
+    io.emit("gameStateUpdate", currentState);
+    logger.info("Broadcasting game state:", currentState);
+  } catch (error) {
+    logger.error("Error broadcasting game state:", error);
+  }
+};
+
+// Update leaderboard with preserved game state
+const updateLeaderboard = async () => {
+  try {
+    const teams = await Team.find(
+      {},
+      {
+        teamName: 1,
+        scores: 1,
+        memberOne: 1,
+        memberTwo: 1,
+        collegeName: 1,
+      }
+    ).lean();
+
+    const leaderboardData = teams
+      .map((team) => ({
+        teamName: team.teamName,
+        collegeName: team.collegeName,
+        totalScore:
+          (team.scores.round1 || 0) +
+          (team.scores.round2 || 0) +
+          (team.scores.round3?.challenge1 || 0) +
+          (team.scores.round3?.challenge2 || 0),
+        teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
+      }))
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, 10);
+
+    if (io) {
+      io.emit("leaderboardUpdate", leaderboardData);
+
+      // Always broadcast current game state after leaderboard update
+      await broadcastGameState();
+    }
+
+    return leaderboardData;
+  } catch (error) {
+    logger.error("Error updating leaderboard:", error);
+    throw error;
+  }
+};
+
 const initializeSocket = async (server) => {
-  // Initialize state before setting up socket
   await initializeGameState();
 
   io = socketIo(server, {
@@ -39,66 +106,23 @@ const initializeSocket = async (server) => {
       origin: "*",
       methods: ["GET", "POST", "PUT", "DELETE"],
     },
+    transports: ["websocket", "polling"],
   });
 
   io.on("connection", async (socket) => {
     logger.info(`Client connected: ${socket.id}`);
 
-    // Send initial state to newly connected client
-    socket.emit("gameStateUpdate", gameState);
-
-    // Send initial leaderboard data
     try {
+      // Send current game state on connection
+      const currentState = await getCurrentGameState();
+      socket.emit("gameStateUpdate", currentState);
+
+      // Send leaderboard
       const leaderboardData = await updateLeaderboard();
       socket.emit("leaderboardUpdate", leaderboardData);
-
-      // Update active users count
-      gameState.activeUsers = leaderboardData.length;
-      socket.emit("gameStateUpdate", gameState);
     } catch (error) {
-      logger.error("Error sending initial leaderboard:", error);
+      logger.error("Error sending initial state:", error);
     }
-
-    // Handle initial state request
-    socket.on("requestInitialState", async () => {
-      socket.emit("gameStateUpdate", gameState);
-      logger.info("Initial state sent to client:", gameState);
-
-      try {
-        const leaderboardData = await updateLeaderboard();
-        socket.emit("leaderboardUpdate", leaderboardData);
-      } catch (error) {
-        logger.error("Error sending requested leaderboard:", error);
-      }
-    });
-
-    // Handle round change
-    socket.on("roundChange", async (round) => {
-      try {
-        // Update database
-        const dbGameState = await GameState.findOne();
-        if (dbGameState) {
-          dbGameState.currentRound = round;
-          await dbGameState.save();
-        }
-
-        // Update socket state
-        gameState.currentRound = round;
-        gameState.gameStatus = round === 0 ? "Stopped" : "In Progress";
-
-        // Broadcast to all clients
-        io.emit("gameStateUpdate", gameState);
-        logger.info(
-          `Round changed to: ${round}, Game status: ${gameState.gameStatus}`
-        );
-
-        // Update leaderboard
-        const leaderboardData = await updateLeaderboard();
-        io.emit("leaderboardUpdate", leaderboardData);
-      } catch (error) {
-        logger.error("Error handling round change:", error);
-      }
-    });
 
     socket.on("disconnect", () => {
       logger.info(`Client disconnected: ${socket.id}`);
@@ -108,76 +132,19 @@ const initializeSocket = async (server) => {
   return io;
 };
 
-const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.io not initialized!");
-  }
-  return io;
-};
-
-const updateGameState = async (newState) => {
-  try {
-    // Update database first
-    const dbGameState = await GameState.findOne();
-    if (dbGameState) {
-      if (newState.currentRound !== undefined)
-        dbGameState.currentRound = newState.currentRound;
-      if (newState.isRegistrationOpen !== undefined)
-        dbGameState.isRegistrationOpen = newState.isRegistrationOpen;
-      await dbGameState.save();
-    }
-
-    // Update socket state
-    gameState = { ...gameState, ...newState };
-
-    // Broadcast update if socket is initialized
-    if (io) {
-      io.emit("gameStateUpdate", gameState);
-      logger.info("Game state updated:", gameState);
-
-      // Update leaderboard
-      const leaderboardData = await updateLeaderboard();
-      io.emit("leaderboardUpdate", leaderboardData);
-    }
-  } catch (error) {
-    logger.error("Error updating game state:", error);
-    throw error;
-  }
-};
-
 const updateRegistrationStatus = async (status) => {
   try {
-    // Convert string status to boolean if necessary
     const isOpen = typeof status === "string" ? status === "open" : status;
 
-    // Update database
     const dbGameState = await GameState.findOne();
     if (dbGameState) {
       dbGameState.isRegistrationOpen = isOpen;
       await dbGameState.save();
     }
 
-    // Update socket state
-    gameState.isRegistrationOpen = isOpen;
-
-    // Broadcast update
     if (io) {
-      // First emit the specific registration status change event
       io.emit("registrationStatusChange", isOpen ? "open" : "closed");
-
-      // Then emit the complete game state update
-      io.emit("gameStateUpdate", {
-        gameStatus: gameState.gameStatus,
-        isRegistrationOpen: isOpen,
-        currentRound: gameState.currentRound,
-        activeUsers: gameState.activeUsers,
-      });
-
-      logger.info("Registration status updated:", isOpen);
-
-      // Update leaderboard
-      const leaderboardData = await updateLeaderboard();
-      io.emit("leaderboardUpdate", leaderboardData);
+      await broadcastGameState();
     }
   } catch (error) {
     logger.error("Error updating registration status:", error);
@@ -185,141 +152,54 @@ const updateRegistrationStatus = async (status) => {
   }
 };
 
-const updateRound = async (round) => {
+const handleScoreUpdate = async (teamId) => {
   try {
-    // Update database
-    const dbGameState = await GameState.findOne();
-    if (dbGameState) {
-      dbGameState.currentRound = round;
-      await dbGameState.save();
-    }
-
-    // Update socket state
-    gameState.currentRound = round;
-    gameState.gameStatus = round === 0 ? "Stopped" : "In Progress";
-
-    // Broadcast update
-    if (io) {
-      io.emit("gameStateUpdate", gameState);
-      logger.info("Round updated:", round);
-
-      // Update leaderboard
-      const leaderboardData = await updateLeaderboard();
-      io.emit("leaderboardUpdate", leaderboardData);
-    }
-  } catch (error) {
-    logger.error("Error updating round:", error);
-    throw error;
-  }
-};
-
-const updateActiveUsers = async (count) => {
-  gameState.activeUsers = count;
-  if (io) {
-    io.emit("gameStateUpdate", gameState);
-    logger.info("Active users updated:", count);
-  }
-};
-
-const broadcastLeaderboard = async () => {
-  try {
-    const leaderboardData = await updateLeaderboard();
-    if (io) {
-      io.emit("leaderboardUpdate", leaderboardData);
-
-      // Update active users count in game state
-      gameState.activeUsers = leaderboardData.length;
-      io.emit("gameStateUpdate", gameState);
-    }
-    return leaderboardData;
-  } catch (error) {
-    logger.error("Error broadcasting leaderboard:", error);
-    throw error;
-  }
-};
-
-const terminateRound = async () => {
-  try {
-    // Update database
-    const dbGameState = await GameState.findOne();
-    if (dbGameState) {
-      dbGameState.currentRound = 0; // Reset round to 0 when terminated
-      await dbGameState.save();
-    }
-
-    // Update socket state
-    gameState.currentRound = 0;
-    gameState.gameStatus = "Stopped";
-
-    // Broadcast updates
-    if (io) {
-      // Emit specific round termination event
-      io.emit("roundTerminated", { currentRound: 0 });
-
-      // Emit general game state update
-      io.emit("gameStateUpdate", gameState);
-      logger.info("Round terminated");
-
-      // Update leaderboard
-      const leaderboardData = await updateLeaderboard();
-      io.emit("leaderboardUpdate", leaderboardData);
-    }
-  } catch (error) {
-    logger.error("Error terminating round:", error);
-    throw error;
-  }
-};
-
-const updateScore = async (teamId) => {
-  try {
-    // Get updated team data
-    const team = await Team.findById(teamId, {
-      teamName: 1,
-      scores: 1,
-      memberOne: 1,
-      memberTwo: 1,
-      collegeName: 1,
-    });
-
+    const team = await Team.findById(teamId).lean();
     if (!team) {
-      logger.error(`Team not found with id: ${teamId}`);
+      logger.error(`Team not found: ${teamId}`);
       return;
     }
 
-    // Calculate total score
     const totalScore =
-      team.scores.round1 +
-      team.scores.round2 +
-      team.scores.round3.challenge1 +
-      team.scores.round3.challenge2;
+      (team.scores.round1 || 0) +
+      (team.scores.round2 || 0) +
+      (team.scores.round3?.challenge1 || 0) +
+      (team.scores.round3?.challenge2 || 0);
 
-    // Emit immediate score update for this team
     if (io) {
+      // Emit individual score update
       io.emit("scoreUpdate", {
         teamName: team.teamName,
-        collegeName: team.collegeName,
-        totalScore: totalScore,
+        totalScore,
         teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
+        collegeName: team.collegeName,
       });
 
-      // Also send full leaderboard update
-      const leaderboardData = await updateLeaderboard();
-      io.emit("leaderboardUpdate", leaderboardData);
+      // Update leaderboard
+      await updateLeaderboard();
     }
   } catch (error) {
-    logger.error("Error in updateScore:", error);
-    throw error;
+    logger.error("Error handling score update:", error);
   }
 };
 
 module.exports = {
   initializeSocket,
-  getIO,
-  updateGameState,
+  getIO: () => io,
+  updateGameState: async (newState) => {
+    try {
+      const dbGameState = await GameState.findOne();
+      if (dbGameState) {
+        Object.assign(dbGameState, newState);
+        await dbGameState.save();
+      }
+      await broadcastGameState();
+    } catch (error) {
+      logger.error("Error updating game state:", error);
+      throw error;
+    }
+  },
   updateRegistrationStatus,
-  updateRound,
-  updateActiveUsers,
-  broadcastLeaderboard,
-  terminateRound,
-  updateScore,
+  handleScoreUpdate,
+  updateLeaderboard,
 };
