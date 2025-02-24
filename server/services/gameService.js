@@ -115,61 +115,14 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
       }
     }
 
-    // If points were earned, update leaderboard via socket
-    if (pointsEarned > 0) {
+    // If points were earned, update scores via socket
+    // If points were earned, update leaderboard
+    if (isCorrect && pointsEarned > 0) {
       try {
-        // Get updated team data
-        const updatedTeam = await Team.findById(teamId)
-          .select("teamName scores memberOne memberTwo collegeName")
-          .lean();
-
-        // Calculate total score
-        const totalScore =
-          updatedTeam.scores.round1 +
-          updatedTeam.scores.round2 +
-          updatedTeam.scores.round3.challenge1 +
-          updatedTeam.scores.round3.challenge2;
-
-        // Emit score update
-        const io = socketService.getIO();
-        io.emit("scoreUpdate", {
-          teamName: updatedTeam.teamName,
-          totalScore: totalScore,
-          teamMembers: [updatedTeam.memberOne, updatedTeam.memberTwo].filter(
-            Boolean
-          ),
-          collegeName: updatedTeam.collegeName,
-        });
-
-        // Update full leaderboard
-        const teams = await Team.find(
-          {},
-          {
-            teamName: 1,
-            scores: 1,
-            memberOne: 1,
-            memberTwo: 1,
-            collegeName: 1,
-          }
-        ).lean();
-
-        const leaderboardData = teams
-          .map((team) => ({
-            teamName: team.teamName,
-            collegeName: team.collegeName,
-            totalScore:
-              team.scores.round1 +
-              team.scores.round2 +
-              team.scores.round3.challenge1 +
-              team.scores.round3.challenge2,
-            teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
-          }))
-          .sort((a, b) => b.totalScore - a.totalScore)
-          .slice(0, 10);
-
-        io.emit("leaderboardUpdate", leaderboardData);
+        const socketService = require("../config/socket");
+        await socketService.updateLeaderboard();
       } catch (socketError) {
-        logger.error("Error emitting score updates:", socketError);
+        logger.error("Error updating leaderboard:", socketError);
       }
     }
 
