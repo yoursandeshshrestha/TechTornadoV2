@@ -3,7 +3,7 @@ const GameState = require("../models/gameState");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
-const { broadcastLeaderboard } = require("../config/socket");
+const socketService = require("../config/socket");
 
 const generateToken = (teamId) => {
   return jwt.sign({ teamId }, process.env.JWT_SECRET, { expiresIn: "24h" });
@@ -55,14 +55,25 @@ const registerTeam = async (teamData) => {
       scores: {
         round1: 0,
         round2: 0,
-        round3: 0,
+        round3: {
+          challenge1: 0,
+          challenge2: 0,
+        },
       },
     });
 
     await team.save();
     logger.info(`Team registered successfully: ${team.teamName}`);
 
-    await broadcastLeaderboard();
+    // Update leaderboard in real-time
+    try {
+      await socketService.updateLeaderboard();
+    } catch (socketError) {
+      logger.error(
+        "Error updating leaderboard after team registration:",
+        socketError
+      );
+    }
 
     // Generate token
     const token = generateToken(team._id);
