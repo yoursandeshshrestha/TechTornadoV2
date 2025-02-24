@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { AuthState } from "@/types";
 import { toast } from "sonner";
 
+import { getTokenFromCookie } from "@/utils/cookieUtils";
+
 interface LoginCredentials {
   username: string;
   password: string;
@@ -47,8 +49,8 @@ export const loginAdmin = createAsyncThunk<LoginResponse, LoginCredentials>(
 );
 
 const initialState: AuthState = {
-  token: null,
-  isAuthenticated: false,
+  token: getTokenFromCookie(), // Initialize with token from cookie
+  isAuthenticated: !!getTokenFromCookie(), // Set initial auth state based on token presence
   loading: false,
   error: null,
   user: null,
@@ -65,6 +67,16 @@ const authSlice = createSlice({
       document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
       toast.success("Logged out successfully");
     },
+    restoreAuthState: (state) => {
+      const token = getTokenFromCookie();
+      if (token) {
+        state.token = token;
+        state.isAuthenticated = true;
+      }
+    },
+    clearAuthError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -75,16 +87,19 @@ const authSlice = createSlice({
       .addCase(loginAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.token = action.payload.token.data?.token || null;
-        state.user = action.payload.token.data?.admin || null;
+        state.token = action.payload.token.data?.token;
+        state.user = action.payload.token.data?.admin;
         toast.success("Logged in successfully");
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? "Login failed";
+        state.isAuthenticated = false;
+        state.token = null;
+        state.user = null;
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, restoreAuthState, clearAuthError } = authSlice.actions;
 export default authSlice.reducer;
