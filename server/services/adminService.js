@@ -209,7 +209,7 @@ const startRound = async (round) => {
     const endTime = new Date(Date.now() + duration);
 
     const gameState = await GameState.findOneAndUpdate(
-      {}, // Empty filter means it updates the first found document
+      {},
       {
         currentRound: round,
         isGameActive: true,
@@ -217,17 +217,33 @@ const startRound = async (round) => {
         roundEndTime: endTime,
         isPaused: false,
       },
-      { upsert: true, new: true } // upsert ensures a new document is created if none exists
+      { upsert: true, new: true }
     );
 
-    getIO().emit("roundStart", { round, endTime });
+    // Emit both game state update and round change events
+    const io = getIO();
+    io.emit("gameStateUpdate", {
+      currentRound: round,
+      gameStatus: "In Progress",
+      endTime: endTime.toISOString(), // Format endTime as ISO string
+    });
+
+    io.emit("roundChange", {
+      round,
+      endTime: endTime.toISOString(),
+    });
 
     // Schedule round end
     setTimeout(async () => {
       await endRound(round);
     }, duration);
 
-    return { message: `Round ${round} started`, endTime };
+    return {
+      message: `Round ${round} started`,
+      data: {
+        endTime: endTime.toISOString(),
+      },
+    };
   } catch (error) {
     console.error("Start round error:", error);
     throw new Error("Failed to start round: " + error.message);
@@ -235,16 +251,38 @@ const startRound = async (round) => {
 };
 
 const endRound = async (round) => {
-  await GameState.updateOne(
-    {},
-    {
-      currentRound: round < 3 ? round + 1 : 3,
-      roundStartTime: null,
-      roundEndTime: null,
-    }
-  );
+  try {
+    await GameState.updateOne(
+      {},
+      {
+        currentRound: 0,
+        isGameActive: false,
+        roundStartTime: null,
+        roundEndTime: null,
+        isPaused: false,
+      }
+    );
 
-  getIO().emit("roundEnd", { round });
+    const io = getIO();
+    io.emit("gameStateUpdate", {
+      currentRound: 0,
+      gameStatus: "Stopped",
+      endTime: null,
+    });
+
+    io.emit("roundTerminated", { currentRound: 0 });
+
+    // Update leaderboard after round end
+    try {
+      const leaderboardData = await updateLeaderboard();
+      io.emit("leaderboardUpdate", leaderboardData);
+    } catch (error) {
+      logger.error("Error updating leaderboard after round end:", error);
+    }
+  } catch (error) {
+    logger.error("Error ending round:", error);
+    throw new Error("Failed to end round: " + error.message);
+  }
 };
 
 const getScores = async () => {
@@ -553,26 +591,51 @@ const createBulkQuestions = async (questions) => {
 };
 
 const terminateRound = async () => {
-  const updatedState = await GameState.findOneAndUpdate(
-    {},
-    {
-      isGameActive: false,
+  try {
+    // Update database first
+    const updatedState = await GameState.findOneAndUpdate(
+      {},
+      {
+        isGameActive: false,
+        currentRound: 0,
+        roundStartTime: null,
+        roundEndTime: null,
+        remainingTime: null,
+        isPaused: false,
+      },
+      { new: true }
+    );
+
+    if (!updatedState) {
+      throw new Error("Failed to update game state");
+    }
+
+    // Get socket instance
+    const io = getIO();
+
+    // Emit game state update first
+    io.emit("gameStateUpdate", {
       currentRound: 0,
-      roundStartTime: null,
-      roundEndTime: null,
-      remainingTime: null,
-      isPaused: false,
-    },
-    { new: true }
-  );
+      gameStatus: "Stopped",
+      isGameActive: false,
+      endTime: null,
+    });
 
-  getIO().emit("roundTerminated", {
-    message: "Round terminated",
-    currentRound: 0,
-    isGameActive: false,
-  });
+    // Then emit round terminated event
+    io.emit("roundTerminated", {
+      message: "Round terminated",
+      currentRound: 0,
+      isGameActive: false,
+    });
 
-  return updatedState;
+    return {
+      success: true,
+      message: "Round terminated successfully",
+    };
+  } catch (error) {
+    console.error("Error in terminateRound:", error);
+    throw new Error("Failed to terminate round: " + error.message);
+  }
 };
 
 module.exports = {
