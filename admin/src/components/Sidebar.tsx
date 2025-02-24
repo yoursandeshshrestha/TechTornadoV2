@@ -1,8 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { LayoutDashboard, HelpCircle, PlayCircle, LogOut } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  HelpCircle,
+  PlayCircle,
+  LogOut,
+  Trophy,
+} from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/redux/features/authSlice";
 import { AppDispatch } from "@/lib/redux/store";
@@ -10,7 +16,6 @@ import { LogoutDialog } from "./LogoutDialog";
 
 interface SidebarProps {
   className?: string;
-  activeRoute?: string;
 }
 
 const navigationItems = [
@@ -25,20 +30,24 @@ const navigationItems = [
     path: "/questions",
   },
   {
-    title: "Game Control",
-    icon: <PlayCircle className="h-5 w-5" />,
-    path: "/game-control",
+    title: "Leaderboard",
+    icon: <Trophy className="h-5 w-5" />,
+    path: "/leaderboard",
   },
 ];
 
-export default function Sidebar({
-  className = "",
-  activeRoute = "/dashboard",
-}: SidebarProps) {
+export default function Sidebar({ className = "" }: SidebarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Function to check if a nav item is active
+  const isActive = (path: string) => {
+    // Check if the current pathname starts with the nav item's path
+    return pathname.startsWith(path);
+  };
 
   const handleNavigate = (path: string) => {
     router.push(path);
@@ -71,7 +80,7 @@ export default function Sidebar({
                 <button
                   className={`h-12 w-12 flex items-center justify-center rounded-lg transition-colors
                     ${
-                      activeRoute === item.path
+                      isActive(item.path)
                         ? "bg-blue-500 text-white"
                         : "text-gray-500 hover:bg-gray-100"
                     }`}
