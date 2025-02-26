@@ -100,8 +100,8 @@ export default function LoginPage() {
 
       // Redirect to dashboard
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+        router.push("/");
+      });
     } catch (err: any) {
       console.error("Login error:", err);
       // Error is already shown via toast above
