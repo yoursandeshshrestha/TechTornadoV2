@@ -1,5 +1,5 @@
 import { Question } from "@/types";
-import { Pencil, Trash2, AlertCircle } from "lucide-react";
+import { Pencil, Trash2, AlertCircle, Image, FileText } from "lucide-react";
 
 interface QuestionListProps {
   questions: Question[];
@@ -35,7 +35,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl  shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-full divide-y divide-gray-200">
           <thead>
@@ -69,6 +69,12 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                 className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
               >
                 Hint
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              >
+                Media
               </th>
               <th
                 scope="col"
@@ -114,6 +120,35 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                       : "-"}
                   </div>
                 </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-col gap-1">
+                    {question.media?.image && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <Image className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                        <span
+                          className="truncate max-w-[150px]"
+                          title={question.media.image.fileName}
+                        >
+                          {question.media.image.fileName}
+                        </span>
+                      </div>
+                    )}
+                    {question.media?.pdf && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <FileText className="h-3.5 w-3.5 mr-1 text-red-500" />
+                        <span
+                          className="truncate max-w-[150px]"
+                          title={question.media.pdf.fileName}
+                        >
+                          {question.media.pdf.fileName}
+                        </span>
+                      </div>
+                    )}
+                    {!question.media?.image && !question.media?.pdf && (
+                      <span className="text-xs text-gray-400">No media</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <button
@@ -137,7 +172,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
             {questions.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-6 py-10 text-center text-gray-500 bg-gray-50/50"
                 >
                   <p className="text-sm font-medium">No questions found</p>
