@@ -17,6 +17,16 @@ export interface Question {
   answer: string;
   hints: string[];
   points?: number;
+  media?: {
+    image?: {
+      url: string;
+      fileName: string;
+    };
+    pdf?: {
+      url: string;
+      fileName: string;
+    };
+  };
 }
 
 export interface NewQuestion {
