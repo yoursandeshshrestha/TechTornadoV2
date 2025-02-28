@@ -100,7 +100,18 @@ const updateQuestion = async (req, res) => {
       hints: req.body.hints,
     };
 
-    const question = await adminService.updateQuestion(id, updateData);
+    // Pass files from request to service
+    const question = await adminService.updateQuestion(
+      id,
+      updateData,
+      req.files
+    );
+
+    if (!question.success) {
+      const statusCode = question.message === "Question not found" ? 404 : 400;
+      return res.status(statusCode).json(question);
+    }
+
     res.json(question);
   } catch (error) {
     logger.error("Update question error:", error);
