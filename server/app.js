@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fileUpload = require("express-fileupload");
+const path = require("path");
 const logger = require("./utils/logger");
 const notFoundHandler = require("./utils/notFoundHandler");
 const adminRoutes = require("./routes/adminRoutes");
@@ -10,6 +12,20 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// File upload middleware
+app.use(
+  fileUpload({
+    limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+    createParentPath: true, // Create upload directories if they don't exist
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+    abortOnLimit: true,
+  })
+);
+
+// Serve static files from the uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Request logging middleware
 app.use((req, res, next) => {
