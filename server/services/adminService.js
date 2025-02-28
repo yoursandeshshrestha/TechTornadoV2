@@ -2,10 +2,12 @@ const Admin = require("../models/Admin");
 const Team = require("../models/Team");
 const GameState = require("../models/gameState");
 const { getIO } = require("../config/socket");
-const { getRoundDuration } = require("../utils/helpers");
+const { getRoundDuration, calculatePoints } = require("../utils/helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Question = require("../models/Question");
+const path = require("path");
+const fs = require("fs");
 
 const registerAdmin = async (username, password) => {
   try {
@@ -311,16 +313,10 @@ const getScores = async () => {
   }
 };
 
-const createQuestion = async (questionData) => {
+const createQuestion = async (questionData, files) => {
   try {
     // Validate required fields
-    const requiredFields = [
-      "round",
-      "questionNumber",
-      "content",
-      "answer",
-      "points",
-    ];
+    const requiredFields = ["round", "questionNumber", "content", "answer"];
     const missingFields = requiredFields.filter(
       (field) => !questionData[field]
     );
@@ -332,7 +328,23 @@ const createQuestion = async (questionData) => {
       };
     }
 
-    // Check if question already exists in the specified round
+    // Validate round number
+    if (![1, 2, 3].includes(Number(questionData.round))) {
+      return {
+        success: false,
+        message: "Round must be 1, 2, or 3",
+      };
+    }
+
+    // Validate question number
+    if (Number(questionData.questionNumber) < 1) {
+      return {
+        success: false,
+        message: "Question number must be a positive number",
+      };
+    }
+
+    // Check if question already exists
     const existingQuestion = await Question.findOne({
       round: questionData.round,
       questionNumber: questionData.questionNumber,
@@ -342,10 +354,85 @@ const createQuestion = async (questionData) => {
       return {
         success: false,
         message: `Question ${questionData.questionNumber} already exists in round ${questionData.round}`,
+        code: "DUPLICATE_QUESTION",
       };
     }
 
-    const question = new Question(questionData);
+    // Create the question object
+    const newQuestionData = {
+      round: Number(questionData.round),
+      questionNumber: Number(questionData.questionNumber),
+      content: questionData.content,
+      answer: questionData.answer,
+      points: calculatePoints(Number(questionData.round)),
+    };
+
+    // Add hints if provided
+    if (questionData.hints) {
+      try {
+        // Handle hints as JSON string or array
+        newQuestionData.hints = Array.isArray(questionData.hints)
+          ? questionData.hints
+          : JSON.parse(questionData.hints);
+      } catch (e) {
+        // If parsing fails, treat as a single hint
+        newQuestionData.hints = [questionData.hints];
+      }
+    }
+
+    // Handle media files if uploaded
+    if (files) {
+      newQuestionData.media = {};
+
+      // Handle image upload
+      if (files.image) {
+        const uploadDir = path.join(__dirname, "../uploads/images");
+
+        // Ensure directory exists
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // Create a unique filename
+        const fileName = `${Date.now()}-${files.image.name}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        // Move file to upload directory
+        await files.image.mv(filePath);
+
+        // Save image data
+        newQuestionData.media.image = {
+          url: `/uploads/images/${fileName}`,
+          fileName: files.image.name,
+        };
+      }
+
+      // Handle PDF upload
+      if (files.pdf) {
+        const uploadDir = path.join(__dirname, "../uploads/pdfs");
+
+        // Ensure directory exists
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // Create a unique filename
+        const fileName = `${Date.now()}-${files.pdf.name}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        // Move file to upload directory
+        await files.pdf.mv(filePath);
+
+        // Save PDF data
+        newQuestionData.media.pdf = {
+          url: `/uploads/pdfs/${fileName}`,
+          fileName: files.pdf.name,
+        };
+      }
+    }
+
+    // Create and save the question
+    const question = new Question(newQuestionData);
     await question.save();
 
     return {
@@ -354,10 +441,33 @@ const createQuestion = async (questionData) => {
       data: question,
     };
   } catch (error) {
+    // Handle specific error cases
+    if (error.message.includes("already exists in round")) {
+      return {
+        success: false,
+        message: error.message,
+        code: "DUPLICATE_QUESTION",
+      };
+    }
+
+    // Handle mongoose validation errors
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
+      return {
+        success: false,
+        message: "Validation failed",
+        errors: validationErrors,
+        code: "VALIDATION_ERROR",
+      };
+    }
+
     return {
       success: false,
       message: "Failed to create question",
       error: error.message,
+      code: "INTERNAL_ERROR",
     };
   }
 };
