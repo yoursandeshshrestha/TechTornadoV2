@@ -40,88 +40,26 @@ const getScores = async (req, res) => {
 
 const createQuestion = async (req, res) => {
   try {
-    const { round, questionNumber, content, answer, hints } = req.body;
+    // Get files if they exist
+    const files = req.files || {};
 
-    // Input validation
-    if (!round || !questionNumber || !content || !answer) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Please provide all required fields: round, questionNumber, content, and answer",
-      });
+    // Call service to create question
+    const result = await adminService.createQuestion(req.body, files);
+
+    if (!result.success) {
+      const statusCode =
+        result.code === "DUPLICATE_QUESTION"
+          ? 409
+          : result.code === "VALIDATION_ERROR"
+          ? 400
+          : 500;
+
+      return res.status(statusCode).json(result);
     }
 
-    // Validate round number
-    if (![1, 2, 3].includes(round)) {
-      return res.status(400).json({
-        success: false,
-        message: "Round must be 1, 2, or 3",
-      });
-    }
-
-    // Validate question number
-    if (questionNumber < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Question number must be a positive number",
-      });
-    }
-
-    // Validate hints if provided
-    if (hints && !Array.isArray(hints)) {
-      return res.status(400).json({
-        success: false,
-        message: "Hints must be provided as an array",
-      });
-    }
-
-    // Create question data object
-    const questionData = {
-      round,
-      questionNumber,
-      content,
-      answer,
-      points: calculatePoints(round),
-    };
-
-    // Add hints only if they are provided
-    if (hints && hints.length > 0) {
-      questionData.hints = hints;
-    }
-
-    const question = new Question(questionData);
-    await question.save();
-
-    return res.status(201).json({
-      success: true,
-      message: "Question created successfully",
-      data: question,
-    });
+    return res.status(201).json(result);
   } catch (error) {
-    // Handle specific error cases
-    if (error.message.includes("already exists in round")) {
-      return res.status(409).json({
-        success: false,
-        message: error.message,
-        code: "DUPLICATE_QUESTION",
-      });
-    }
-
-    // Handle mongoose validation errors
-    if (error.name === "ValidationError") {
-      const validationErrors = Object.values(error.errors).map(
-        (err) => err.message
-      );
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationErrors,
-        code: "VALIDATION_ERROR",
-      });
-    }
-
-    // Handle other errors
-    console.error("Error in createQuestion controller:", error);
+    logger.error("Error in createQuestion controller:", error);
     return res.status(500).json({
       success: false,
       message: "An unexpected error occurred while creating the question",
