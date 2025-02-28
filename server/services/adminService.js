@@ -531,7 +531,7 @@ const getQuestionsByRound = async (round) => {
   }
 };
 
-const updateQuestion = async (questionId, updateData) => {
+const updateQuestion = async (questionId, updateData, files) => {
   try {
     // Validate question ID
     if (!questionId) {
@@ -562,6 +562,96 @@ const updateQuestion = async (questionId, updateData) => {
         return {
           success: false,
           message: `Question ${updateData.questionNumber} already exists in round ${updateData.round}`,
+        };
+      }
+    }
+
+    // Handle file uploads
+    if (files) {
+      // Initialize media object if it doesn't exist
+      if (!existingQuestion.media) {
+        existingQuestion.media = {};
+        updateData.media = {};
+      } else {
+        // Copy existing media to update data so we don't lose it
+        updateData.media = existingQuestion.media;
+      }
+
+      // Handle image upload
+      if (files.image) {
+        const uploadDir = path.join(__dirname, "../uploads/images");
+
+        // Ensure directory exists
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // Create a unique filename
+        const fileName = `${Date.now()}-${files.image.name}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        // Move file to upload directory
+        await files.image.mv(filePath);
+
+        // Delete old image if it exists
+        if (existingQuestion.media.image && existingQuestion.media.image.url) {
+          try {
+            const oldImagePath = path.join(
+              __dirname,
+              "..",
+              existingQuestion.media.image.url
+            );
+            if (fs.existsSync(oldImagePath)) {
+              fs.unlinkSync(oldImagePath);
+            }
+          } catch (err) {
+            console.error("Error deleting old image:", err);
+          }
+        }
+
+        // Update image data
+        updateData.media.image = {
+          url: `/uploads/images/${fileName}`,
+          fileName: files.image.name,
+        };
+      }
+
+      // Handle PDF upload
+      if (files.pdf) {
+        const uploadDir = path.join(__dirname, "../uploads/pdfs");
+
+        // Ensure directory exists
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // Create a unique filename
+        const fileName = `${Date.now()}-${files.pdf.name}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        // Move file to upload directory
+        await files.pdf.mv(filePath);
+
+        // Delete old PDF if it exists
+        if (existingQuestion.media.pdf && existingQuestion.media.pdf.url) {
+          try {
+            const oldPdfPath = path.join(
+              __dirname,
+              "..",
+              existingQuestion.media.pdf.url
+            );
+            if (fs.existsSync(oldPdfPath)) {
+              fs.unlinkSync(oldPdfPath);
+            }
+          } catch (err) {
+            console.error("Error deleting old PDF:", err);
+          }
+        }
+
+        // Update PDF data
+        updateData.media.pdf = {
+          url: `/uploads/pdfs/${fileName}`,
+          fileName: files.pdf.name,
         };
       }
     }
