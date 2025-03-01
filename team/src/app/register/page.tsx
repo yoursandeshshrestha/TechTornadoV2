@@ -112,7 +112,7 @@ export default function RegisterPage() {
 
       // Redirect to dashboard
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/");
       }, 1500);
     } catch (err: any) {
       console.error("Registration error:", err);
