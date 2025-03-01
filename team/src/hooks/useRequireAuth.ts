@@ -1,5 +1,4 @@
-// hooks/useRequireAuth.ts - A more strict version that always requires auth
-("use client");
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
