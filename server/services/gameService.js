@@ -274,13 +274,25 @@ const updateLeaderboard = async () => {
 
 const getCurrentGameState = async () => {
   try {
-    const gameState = (await GameState.findOne()) || {
-      currentRound: 0,
-      isGameActive: false,
-    };
+    const gameState = await GameState.findOne();
+
+    if (!gameState) {
+      return {
+        currentRound: 0,
+        isGameActive: false,
+      };
+    }
+
     return {
+      _id: gameState._id,
       currentRound: gameState.currentRound,
+      isRegistrationOpen: gameState.isRegistrationOpen,
       isGameActive: gameState.isGameActive,
+      isPaused: gameState.isPaused,
+      __v: gameState.__v,
+      roundEndTime: gameState.roundEndTime,
+      roundStartTime: gameState.roundStartTime,
+      remainingTime: gameState.remainingTime,
     };
   } catch (error) {
     logger.error("Get game state error:", error);
