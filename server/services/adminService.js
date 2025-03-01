@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const Question = require("../models/Question");
 const path = require("path");
 const fs = require("fs");
+const logger = require("../utils/logger");
 
 const registerAdmin = async (username, password) => {
   try {
@@ -252,7 +253,7 @@ const startRound = async (round) => {
   }
 };
 
-const endRound = async (round) => {
+const endRound = async () => {
   try {
     await GameState.updateOne(
       {},
