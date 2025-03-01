@@ -10,7 +10,12 @@ const gameRoutes = require("./routes/gameRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"], // Your frontend URL
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // File upload middleware
