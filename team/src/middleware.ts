@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
 
   if (isAuthPage && token) {
     // If on login/register page and already logged in, redirect to dashboard
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (isProtectedPage && !token) {
