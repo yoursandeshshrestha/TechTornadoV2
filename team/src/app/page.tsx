@@ -26,22 +26,22 @@ export default function Dashboard() {
       isUnlocked: true,
     },
     {
-      id: "crack-password",
+      id: "crack-the-password",
       title: "Crack the Password",
       description:
         "A challenging cryptography game where you'll need to decode encrypted messages and find the hidden passwords.",
       icon: <BookOpen className="w-7 h-7 text-purple-600" />,
       color: "purple",
-      isUnlocked: false,
+      isUnlocked: true,
     },
     {
-      id: "escape-trap",
+      id: "escape-the-trap",
       title: "Escape the Trap",
       description:
         "Navigate through a series of logical puzzles and programming challenges to escape the digital maze.",
       icon: <Award className="w-7 h-7 text-indigo-600" />,
       color: "indigo",
-      isUnlocked: false,
+      isUnlocked: true,
     },
   ];
 
@@ -131,11 +131,7 @@ export default function Dashboard() {
             {challenges.map((challenge) => (
               <div
                 key={challenge.id}
-                className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ring-1 ring-black/[0.08] ${
-                  !challenge.isUnlocked
-                    ? "opacity-75 cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
+                className="group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ring-1 ring-black/[0.08] cursor-pointer"
               >
                 {/* Background gradient with static classes */}
                 <div
@@ -175,29 +171,19 @@ export default function Dashboard() {
                       Instructions
                     </button>
 
-                    {challenge.isUnlocked ? (
-                      <Link
-                        href={`/challenges/${challenge.id}`}
-                        className="flex-1"
-                      >
-                        <button
-                          className={`w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white ${getButtonColor(
-                            challenge.color
-                          )}`}
-                        >
-                          Enter
-                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                        </button>
-                      </Link>
-                    ) : (
+                    <Link
+                      href={`/challenges/${challenge.id}`}
+                      className="flex-1"
+                    >
                       <button
-                        disabled
-                        className="flex-1 flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white bg-gray-400 cursor-not-allowed"
+                        className={`w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white ${getButtonColor(
+                          challenge.color
+                        )}`}
                       >
                         Enter
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                       </button>
-                    )}
+                    </Link>
                   </div>
                 </div>
               </div>
