@@ -10,6 +10,18 @@ interface GameState {
 
 type GameStateListener = (state: Partial<GameState>) => void;
 
+// Generic type for socket event callbacks
+type SocketEventCallback<T = unknown> = (...args: T[]) => void;
+
+// Type for leaderboard data
+interface LeaderboardData {
+  teamName?: string;
+  totalScore?: number;
+  teamMembers?: string[];
+  collegeName?: string;
+  [key: string]: unknown;
+}
+
 class SocketService {
   private static instance: SocketService;
   private socket: Socket | null = null;
@@ -77,12 +89,15 @@ class SocketService {
       this.notifyListeners(gameState);
     });
 
-    this.socket.on("leaderboardUpdate", (data: any) => {
-      const gameState: Partial<GameState> = {
-        activeUsers: Array.isArray(data) ? data.length : 0,
-      };
-      this.notifyListeners(gameState);
-    });
+    this.socket.on(
+      "leaderboardUpdate",
+      (data: LeaderboardData[] | LeaderboardData) => {
+        const gameState: Partial<GameState> = {
+          activeUsers: Array.isArray(data) ? data.length : 0,
+        };
+        this.notifyListeners(gameState);
+      }
+    );
   }
 
   private notifyListeners(state: Partial<GameState>): void {
@@ -108,15 +123,21 @@ class SocketService {
     this.gameStateListeners.delete(callback);
   }
 
-  public subscribe(event: string, callback: (...args: any[]) => void): void {
+  public subscribe<T = unknown>(
+    event: string,
+    callback: SocketEventCallback<T>
+  ): void {
     this.socket?.on(event, callback);
   }
 
-  public unsubscribe(event: string, callback: (...args: any[]) => void): void {
+  public unsubscribe<T = unknown>(
+    event: string,
+    callback: SocketEventCallback<T>
+  ): void {
     this.socket?.off(event, callback);
   }
 
-  public emit(event: string, data?: any): void {
+  public emit<T = unknown>(event: string, data?: T): void {
     this.socket?.emit(event, data);
   }
 }

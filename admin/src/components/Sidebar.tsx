@@ -2,13 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  HelpCircle,
-  PlayCircle,
-  LogOut,
-  Trophy,
-} from "lucide-react";
+import { LayoutDashboard, HelpCircle, LogOut, Trophy } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/redux/features/authSlice";
 import { AppDispatch } from "@/lib/redux/store";

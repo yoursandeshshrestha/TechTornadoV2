@@ -11,10 +11,19 @@ interface Team {
   collegeName?: string;
 }
 
+interface LeaderboardData {
+  data?: Team[];
+  success?: boolean;
+  teamName?: string;
+  totalScore?: number;
+  teamMembers?: string[];
+  collegeName?: string;
+}
+
 export default function LeaderboardPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const { socket, subscribe, unsubscribe } = useSocket();
+  const { subscribe, unsubscribe } = useSocket();
 
   const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -31,7 +40,7 @@ export default function LeaderboardPage() {
   }, []);
 
   const handleLeaderboardUpdate = useCallback(
-    (leaderboardData: any) => {
+    (leaderboardData: LeaderboardData | Team[]) => {
       console.log("Received leaderboard update:", leaderboardData);
 
       let teamsData: Team[] = [];
@@ -50,10 +59,10 @@ export default function LeaderboardPage() {
           if (teamIndex >= 0) {
             existingTeams[teamIndex] = {
               ...existingTeams[teamIndex],
-              ...leaderboardData,
+              ...(leaderboardData as Team),
             };
-          } else {
-            existingTeams.push(leaderboardData);
+          } else if (leaderboardData.teamName) {
+            existingTeams.push(leaderboardData as Team);
           }
 
           return existingTeams

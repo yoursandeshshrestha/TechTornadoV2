@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 
+// Use environment variable for the API URL
+const BACKEND_API_URL =
+  process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
+
 interface GameState {
   currentRound: number;
   gameStatus: "In Progress" | "Stopped";
@@ -21,9 +25,9 @@ const initialState: GameState = {
 
 export const fetchGameStatus = createAsyncThunk(
   "game/fetchStatus",
-  async (_, { getState }) => {
+  async () => {
     const response = await fetch(
-      "http://localhost:8000/api/admin/registration/status"
+      `${BACKEND_API_URL}/api/admin/registration/status`
     );
     const data = await response.json();
     return data;
@@ -36,7 +40,7 @@ export const toggleRegistration = createAsyncThunk(
     const { auth } = getState() as { auth: { token: string } };
 
     const response = await fetch(
-      `http://localhost:8000/api/admin/registration/${status}`,
+      `${BACKEND_API_URL}/api/admin/registration/${status}`,
       {
         method: "POST",
         headers: {
@@ -63,17 +67,14 @@ export const startRound = createAsyncThunk(
   async (round: number, { getState, dispatch }) => {
     const { auth } = getState() as { auth: { token: string } };
 
-    const response = await fetch(
-      "http://localhost:8000/api/admin/round/start",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
-        body: JSON.stringify({ round }),
-      }
-    );
+    const response = await fetch(`${BACKEND_API_URL}/api/admin/round/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.token}`,
+      },
+      body: JSON.stringify({ round }),
+    });
 
     const data = await response.json();
     if (!response.ok) {

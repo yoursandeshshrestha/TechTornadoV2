@@ -27,10 +27,14 @@ interface LoginResponse {
   };
 }
 
+// Use environment variable for the API URL
+const BACKEND_API_URL =
+  process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
+
 export const loginAdmin = createAsyncThunk<LoginResponse, LoginCredentials>(
   "auth/login",
   async (credentials) => {
-    const response = await fetch("http://localhost:8000/api/admin/login", {
+    const response = await fetch(`${BACKEND_API_URL}/api/admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -87,8 +91,8 @@ const authSlice = createSlice({
       .addCase(loginAdmin.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.token = action.payload.token.data?.token;
-        state.user = action.payload.token.data?.admin;
+        state.token = action.payload.token.data?.token || null;
+        state.user = action.payload.token.data?.admin || null;
         toast.success("Logged in successfully");
       })
       .addCase(loginAdmin.rejected, (state, action) => {

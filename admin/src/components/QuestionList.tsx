@@ -1,5 +1,5 @@
 import { Question } from "@/types";
-import { Pencil, Trash2, AlertCircle, Image, FileText } from "lucide-react";
+import { Pencil, Trash2, FileText } from "lucide-react";
 
 interface QuestionListProps {
   questions: Question[];
@@ -124,7 +124,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                   <div className="flex flex-col gap-1">
                     {question.media?.image && (
                       <div className="flex items-center text-xs text-gray-600">
-                        <Image className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                        <div className="h-3.5 w-3.5 mr-1 text-blue-500" />
                         <span
                           className="truncate max-w-[150px]"
                           title={question.media.image.fileName}

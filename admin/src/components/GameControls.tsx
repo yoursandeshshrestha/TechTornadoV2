@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { useSocket } from "@/hooks/useSocket";
@@ -32,14 +32,14 @@ export function GameControls() {
     gameStatus: "Stopped",
   });
 
-  const getAuthToken = () => {
+  const getAuthToken = useCallback(() => {
     if (auth.token) return auth.token;
     const cookies = document.cookie.split(";");
     const tokenCookie = cookies.find((cookie) =>
       cookie.trim().startsWith("token=")
     );
     return tokenCookie ? tokenCookie.split("=")[1].trim() : null;
-  };
+  }, [auth.token]);
 
   // Socket event handlers
   useEffect(() => {
@@ -132,7 +132,7 @@ export function GameControls() {
     };
 
     fetchInitialState();
-  }, []);
+  }, [getAuthToken]);
 
   const handleRoundStart = async (roundNumber: number) => {
     try {

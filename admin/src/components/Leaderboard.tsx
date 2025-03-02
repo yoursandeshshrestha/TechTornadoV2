@@ -13,8 +13,7 @@ export function Leaderboard() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { socket, subscribeToGameState, unsubscribeFromGameState } =
-    useSocket();
+  const { socket } = useSocket();
 
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
@@ -89,7 +88,7 @@ export function Leaderboard() {
         socket.off("leaderboardUpdate", handleLeaderboardUpdate);
       }
     };
-  }, [socket, handleScoreUpdate, handleLeaderboardUpdate]);
+  }, [socket, handleScoreUpdate, handleLeaderboardUpdate, BACKEND_URL]);
 
   // Rank icon mapping
   const getRankIcon = (index: number) => {

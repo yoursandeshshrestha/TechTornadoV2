@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Plus, Upload, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
@@ -68,26 +68,11 @@ const QuestionManager = () => {
     null
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { fetchWithErrorHandling, isLoading, error } = useApi();
+  const { fetchWithErrorHandling, isLoading } = useApi();
   const auth = useSelector((state: RootState) => state.auth);
 
-  useEffect(() => {
-    if (auth.token) {
-      fetchAllQuestions();
-    }
-  }, [auth.token]);
-
-  useEffect(() => {
-    if (activeRound === "All Rounds") {
-      setFilteredQuestions(allQuestions);
-    } else {
-      setFilteredQuestions(
-        allQuestions.filter((q) => q.round === Number(activeRound))
-      );
-    }
-  }, [activeRound, allQuestions]);
-
-  const fetchAllQuestions = async () => {
+  // Define fetchAllQuestions with useCallback to prevent recreation on each render
+  const fetchAllQuestions = useCallback(async () => {
     try {
       const response = await fetchWithErrorHandling<Question[]>(
         "/api/admin/questions"
@@ -105,7 +90,29 @@ const QuestionManager = () => {
       setAllQuestions([]);
       toast.error("Failed to fetch questions. Please try again.");
     }
-  };
+  }, [fetchWithErrorHandling]);
+
+  // Only fetch questions once when auth.token changes
+  useEffect(() => {
+    let isMounted = true;
+    if (auth.token && isMounted) {
+      fetchAllQuestions();
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [auth.token, fetchAllQuestions]);
+
+  // Update filtered questions when activeRound or allQuestions change
+  useEffect(() => {
+    if (activeRound === "All Rounds") {
+      setFilteredQuestions(allQuestions);
+    } else {
+      setFilteredQuestions(
+        allQuestions.filter((q) => q.round === Number(activeRound))
+      );
+    }
+  }, [activeRound, allQuestions]);
 
   const handleAddQuestion = async (
     newQuestion: NewQuestion,
@@ -163,9 +170,10 @@ const QuestionManager = () => {
         }
         toast.error(response.message || "Failed to add question");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to add question:", err);
-      const errorMessage = err.message || "Failed to add question";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to add question";
       setValidationErrors([errorMessage]);
       toast.error(errorMessage);
     }
@@ -236,9 +244,10 @@ const QuestionManager = () => {
         }
         toast.error(response.message || "Failed to update question");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update question:", err);
-      const errorMessage = err.message || "Failed to update question";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update question";
       setValidationErrors([errorMessage]);
       toast.error(errorMessage);
     }

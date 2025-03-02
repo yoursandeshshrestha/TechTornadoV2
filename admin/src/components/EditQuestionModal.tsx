@@ -1,4 +1,5 @@
 import { Question } from "@/types";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
 interface EditQuestionModalProps {
@@ -200,7 +201,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             />
             {imagePreview && (
               <div className="mt-2 relative">
-                <img
+                <Image
                   src={imagePreview}
                   alt="Preview"
                   className="max-h-40 rounded"

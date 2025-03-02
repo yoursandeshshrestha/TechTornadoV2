@@ -25,7 +25,7 @@ export default function LoginForm() {
       if (result.token.success) {
         router.push("/dashboard");
       }
-    } catch (error) {
+    } catch {
       // Error is handled by the toast in the thunk
     }
   };

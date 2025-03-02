@@ -2,6 +2,18 @@ import { useEffect, useCallback, useState } from "react";
 import SocketService from "@/lib/socket";
 import type { Socket } from "socket.io-client";
 
+// Define a generic type for the socket event callback
+type SocketEventCallback<T = unknown> = (data: T) => void;
+
+// Define a type for game state
+interface GameState {
+  currentRound?: number;
+  isRegistrationOpen?: boolean;
+  isGameActive?: boolean;
+  gameStatus?: "In Progress" | "Stopped";
+  [key: string]: unknown;
+}
+
 export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
@@ -16,7 +28,7 @@ export const useSocket = () => {
   }, []);
 
   const subscribe = useCallback(
-    (event: string, callback: (...args: any[]) => void) => {
+    <T = unknown>(event: string, callback: SocketEventCallback<T>) => {
       const service = SocketService.getInstance();
       service.subscribe(event, callback);
     },
@@ -24,20 +36,23 @@ export const useSocket = () => {
   );
 
   const unsubscribe = useCallback(
-    (event: string, callback: (...args: any[]) => void) => {
+    <T = unknown>(event: string, callback: SocketEventCallback<T>) => {
       const service = SocketService.getInstance();
       service.unsubscribe(event, callback);
     },
     []
   );
 
-  const subscribeToGameState = useCallback((callback: (state: any) => void) => {
-    const service = SocketService.getInstance();
-    service.subscribeToGameState(callback);
-  }, []);
+  const subscribeToGameState = useCallback(
+    (callback: SocketEventCallback<GameState>) => {
+      const service = SocketService.getInstance();
+      service.subscribeToGameState(callback);
+    },
+    []
+  );
 
   const unsubscribeFromGameState = useCallback(
-    (callback: (state: any) => void) => {
+    (callback: SocketEventCallback<GameState>) => {
       const service = SocketService.getInstance();
       service.unsubscribeFromGameState(callback);
     },

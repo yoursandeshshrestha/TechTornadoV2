@@ -1,4 +1,5 @@
 import { NewQuestion } from "@/types";
+import Image from "next/image";
 import { useState, useRef } from "react";
 
 interface AddQuestionModalProps {
@@ -166,7 +167,7 @@ export const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             />
             {imagePreview && (
               <div className="mt-2 relative">
-                <img
+                <Image
                   src={imagePreview}
                   alt="Preview"
                   className="max-h-40 rounded"

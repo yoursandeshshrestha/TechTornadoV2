@@ -25,65 +25,35 @@ const LandingPage = () => {
           </div>
         </nav>
 
-        {/* Main Content */}
-        <main className="flex-1 flex items-center justify-center pb-[100px]">
-          <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Admin Card */}
-            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ring-1 ring-black/[0.08]">
+        {/* Main Content - Centered both horizontally and vertically */}
+        <main className="flex-1 flex items-center justify-center">
+          <div className="w-full max-w-md px-4">
+            {/* Admin Card - Improved with better shadows and hover effects */}
+            <div className="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 ring-1 ring-black/[0.08]">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 flex flex-col h-[320px]">
-                <div className="bg-blue-100/80 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                  <Wind className="w-7 h-7 text-blue-600" />
+              <div className="relative p-8 flex flex-col h-[350px]">
+                <div className="bg-blue-100/80 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <Wind className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-3">
                   Admin Portal
                 </h3>
-                <p className="text-gray-600 flex-grow">
-                  Manage competitions and questions
+                <p className="text-gray-600 flex-grow text-lg">
+                  Manage competitions, create questions, and track participant
+                  performance through comprehensive admin dashboard.
                 </p>
                 <Link href="/login">
-                  <button className="mt-4 w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-500">
+                  <button className="mt-6 w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl font-medium flex items-center justify-center group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-500">
                     Admin Login
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>
               </div>
             </div>
 
-            {/* Register Card */}
-            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ring-1 ring-black/[0.08]">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 flex flex-col h-[320px]">
-                <div className="bg-purple-100/80 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                  <Wind className="w-7 h-7 text-purple-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Register Team
-                </h3>
-                <p className="text-gray-600 flex-grow">Join the competition</p>
-                <button className="mt-4 w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500">
-                  Register Now
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
-              </div>
-            </div>
-
-            {/* Team Login Card */}
-            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ring-1 ring-black/[0.08]">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-indigo-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 flex flex-col h-[320px]">
-                <div className="bg-indigo-100/80 w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                  <Wind className="w-7 h-7 text-indigo-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Team Login
-                </h3>
-                <p className="text-gray-600 flex-grow">Access your dashboard</p>
-                <button className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center group-hover:shadow-lg group-hover:shadow-indigo-500/25 transition-all duration-500">
-                  Team Login
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </button>
-              </div>
+            {/* Optional decorative element below card */}
+            <div className="mt-6 text-center text-gray-500 text-sm">
+              <p>Welcome to Tech Tornado Admin</p>
             </div>
           </div>
         </main>
