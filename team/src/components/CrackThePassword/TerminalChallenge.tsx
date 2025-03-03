@@ -170,27 +170,104 @@ const TerminalChallenge: React.FC<TerminalChallengeProps> = ({
           {showInstructions && (
             <div className="bg-gray-800/80 border border-blue-500/30 rounded-lg p-4 mb-6 text-white">
               <h3 className="font-bold mb-2 text-blue-400">
-                How to Run C Programs:
+                {challenge.id === 6 && "Challenge 6 - Execution Process:"}
+                {challenge.id === 7 && "Challenge 7 - Execution Process:"}
+                {challenge.id === 8 && "Challenge 8 - Execution Process:"}
               </h3>
               <ol className="list-decimal pl-5 space-y-2 text-sm">
-                <li>Open a terminal window on the computer.</li>
-                <li>
-                  Navigate to the folder containing the C program files using{" "}
-                  <code className="bg-gray-700 px-1 rounded">
-                    cd /path/to/folder
-                  </code>
-                </li>
-                <li>
-                  Run the program using{" "}
-                  <code className="bg-gray-700 px-1 rounded">./filename</code>{" "}
-                  (replace filename with the actual file)
-                </li>
-                <li>
-                  When prompted, enter the password you&apos;ve figured out from
-                  the hints.
-                </li>
-                <li>If correct, the program will reveal the secret message.</li>
-                <li>Submit the secret message here to earn points!</li>
+                {challenge.id === 6 && (
+                  <>
+                    <li>Open the Terminal on your system.</li>
+                    <li>
+                      Navigate to the directory where the C program file (unlock
+                      AI) is located using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cd Desktop
+                      </code>
+                    </li>
+                    <li>
+                      Compile the C program using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cc unlock\ AI.c
+                      </code>
+                    </li>
+                    <li>
+                      Run the program:{" "}
+                      <code className="bg-gray-700 px-1 rounded">./a.out</code>
+                    </li>
+                    <li>
+                      The program will prompt for a password. Use the hints
+                      below to figure it out and enter it correctly.
+                    </li>
+                    <li>
+                      If the password is correct, the encrypted message will be
+                      revealed. Enter that message into the answer box to gain
+                      points!
+                    </li>
+                  </>
+                )}
+                {challenge.id === 7 && (
+                  <>
+                    <li>Open the Terminal on your system.</li>
+                    <li>
+                      Navigate to the directory where the C program file (cyber
+                      secret) is located using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cd Desktop
+                      </code>
+                    </li>
+                    <li>
+                      Compile the C program using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cc cyber\ secret.c
+                      </code>
+                    </li>
+                    <li>
+                      Run the program:{" "}
+                      <code className="bg-gray-700 px-1 rounded">./a.out</code>
+                    </li>
+                    <li>
+                      The program will prompt for a password. Use the hints
+                      below to figure it out and enter it correctly.
+                    </li>
+                    <li>
+                      If the password is correct, the encrypted message will be
+                      revealed. Enter that message into the answer box to gain
+                      points!
+                    </li>
+                  </>
+                )}
+                {challenge.id === 8 && (
+                  <>
+                    <li>Open the Terminal on your system.</li>
+                    <li>
+                      Navigate to the directory where the C program file (enigma
+                      code) is located using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cd Desktop
+                      </code>
+                    </li>
+                    <li>
+                      Compile the C program using:{" "}
+                      <code className="bg-gray-700 px-1 rounded">
+                        cc enigma\ code.c
+                      </code>
+                    </li>
+                    <li>
+                      Run the program:{" "}
+                      <code className="bg-gray-700 px-1 rounded">./a.out</code>
+                    </li>
+                    <li>
+                      The program will prompt for a password. Use the hints
+                      below to figure it out and enter it correctly.
+                    </li>
+                    <li>
+                      If the password is correct, the encrypted message will be
+                      revealed. Enter that message into the answer box to gain
+                      points!
+                    </li>
+                  </>
+                )}
               </ol>
             </div>
           )}
