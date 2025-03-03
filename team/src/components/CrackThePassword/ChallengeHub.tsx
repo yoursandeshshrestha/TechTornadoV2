@@ -13,7 +13,6 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowLeft,
-  Home,
 } from "lucide-react";
 import { allChallenges, Challenge } from "@/data/round2QuestionData";
 import { getGameState } from "@/utils/apiService";
