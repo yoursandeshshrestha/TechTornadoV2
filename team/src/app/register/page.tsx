@@ -114,7 +114,7 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/");
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Registration error:", err);
       // Error is already shown via toast above
     } finally {
