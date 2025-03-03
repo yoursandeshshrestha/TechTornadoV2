@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast, Toaster } from "sonner";
@@ -11,7 +11,8 @@ interface LoginFormData {
   password: string;
 }
 
-export default function LoginPage() {
+// Client component to access search params
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isRegistered = searchParams.get("registered");
@@ -102,7 +103,7 @@ export default function LoginPage() {
       setTimeout(() => {
         router.push("/");
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
       // Error is already shown via toast above
     } finally {
@@ -111,77 +112,110 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div className="px-8 py-6">
+        <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
+          Team Login
+        </h1>
+
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="teamName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Team Name
+              </label>
+              <input
+                id="teamName"
+                name="teamName"
+                type="text"
+                required
+                value={formData.teamName}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 disabled:opacity-70"
+            >
+              {isLoading ? "Logging in..." : "Login"}
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don&apos;t have a team yet?{" "}
+            <Link
+              href="/register"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Register
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Loading fallback for Suspense
+function LoginFormSkeleton() {
+  return (
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
+      <div className="px-8 py-6">
+        <div className="h-8 bg-gray-200 rounded mb-6 mx-auto w-40"></div>
+        <div className="space-y-4">
+          <div>
+            <div className="h-5 bg-gray-200 rounded w-24 mb-1"></div>
+            <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+          </div>
+          <div>
+            <div className="h-5 bg-gray-200 rounded w-24 mb-1"></div>
+            <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+          </div>
+          <div className="h-12 bg-gray-200 rounded-xl w-full"></div>
+        </div>
+        <div className="mt-6">
+          <div className="h-5 bg-gray-200 rounded w-48 mx-auto"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Toaster component */}
       <Toaster position="top-right" richColors />
 
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="px-8 py-6">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            Team Login
-          </h1>
-
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="teamName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Team Name
-                </label>
-                <input
-                  id="teamName"
-                  name="teamName"
-                  type="text"
-                  required
-                  value={formData.teamName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 disabled:opacity-70"
-              >
-                {isLoading ? "Logging in..." : "Login"}
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have a team yet?{" "}
-              <Link
-                href="/register"
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Register
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
+      <Suspense fallback={<LoginFormSkeleton />}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }
