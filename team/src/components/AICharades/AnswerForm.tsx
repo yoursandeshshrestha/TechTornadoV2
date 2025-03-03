@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, ArrowRight, Lightbulb, Zap, Database } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lightbulb, Zap } from "lucide-react";
 
 interface AnswerFormProps {
   userAnswer: string;
