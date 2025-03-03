@@ -14,13 +14,7 @@ import {
   ResultsScreen,
 } from "./GameScreens";
 import GameScreen from "./GameScreen";
-import {
-  Question,
-  GameState,
-  AnswerResponse,
-  QuestionsResponse,
-  ApiQuestion,
-} from "@/types/game";
+import { Question, GameState, AnswerResponse } from "@/types/game";
 
 // API Base URL from environment variable
 const API_BASE_URL =
@@ -41,7 +35,6 @@ const AICharades: React.FC = () => {
   const [showHint, setShowHint] = useState<boolean>(false);
   const [currentHintIndex, setCurrentHintIndex] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [roundEndTime, setRoundEndTime] = useState<Date | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [feedbackMessage, setFeedbackMessage] = useState<string>("");
@@ -100,7 +93,6 @@ const AICharades: React.FC = () => {
 
           // Set round end time
           const endTime = new Date(data.roundEndTime);
-          setRoundEndTime(endTime);
 
           // Calculate initial time left
           const now = new Date();
