@@ -3,6 +3,7 @@
 import React from "react";
 import { Cpu, Sparkles, HelpCircle, Star } from "lucide-react";
 import { Question } from "@/types/game";
+import Image from "next/image";
 
 interface QuestionContentProps {
   question: Question;
@@ -38,7 +39,7 @@ const QuestionContent: React.FC<QuestionContentProps> = ({ question }) => {
       <div className="relative group mb-6 flex justify-center">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
         <div className="relative max-w-md mx-auto">
-          <img
+          <Image
             src={question.imageUrl}
             alt="AI Generated Image"
             className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-blue-500/30"
