@@ -1,4 +1,5 @@
 // utils/auth.ts
+import { TeamData } from "@/types/game";
 
 /**
  * Set token in cookie
@@ -45,7 +46,7 @@ export const removeTokenCookie = () => {
  * Save team info to localStorage
  * @param teamData Team information to store
  */
-export const saveTeamInfo = (teamData: any) => {
+export const saveTeamInfo = (teamData: TeamData) => {
   if (typeof localStorage === "undefined") return;
 
   localStorage.setItem(
@@ -61,7 +62,7 @@ export const saveTeamInfo = (teamData: any) => {
  * Get team info from localStorage
  * @returns Team information or null if not found
  */
-export const getTeamInfo = () => {
+export const getTeamInfo = (): TeamData | null => {
   if (typeof localStorage === "undefined") return null;
 
   const teamData = localStorage.getItem("team");

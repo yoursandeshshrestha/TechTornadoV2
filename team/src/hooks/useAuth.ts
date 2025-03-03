@@ -1,4 +1,3 @@
-// hooks/useAuth.ts
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,12 +7,13 @@ import {
   getTeamInfo,
   removeTokenCookie,
 } from "@/utils/auth";
+import { TeamData } from "@/types/game";
 
 export const useAuth = (redirectIfNotAuthenticated = true) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [teamData, setTeamData] = useState<any>(null);
+  const [teamData, setTeamData] = useState<TeamData | null>(null);
 
   useEffect(() => {
     const checkAuth = () => {

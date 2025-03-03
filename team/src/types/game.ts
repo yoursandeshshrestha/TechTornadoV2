@@ -12,9 +12,16 @@ export interface Question {
 
 export interface TeamData {
   teamName: string;
-  teamId: string;
-  isLoggedIn: boolean;
-  [key: string]: any;
+  teamId?: string; // Made optional to work with localStorage data
+  isLoggedIn?: boolean; // Made optional as well for consistency
+  collegeName?: string;
+  memberOne?: string;
+  memberTwo?: string;
+  currentRound?: number;
+  score?: number;
+  completedChallenges?: number[];
+  lastActive?: string;
+  [key: string]: unknown;
 }
 
 export interface Challenge {

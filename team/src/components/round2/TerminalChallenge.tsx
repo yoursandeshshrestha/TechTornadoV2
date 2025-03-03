@@ -186,8 +186,8 @@ const TerminalChallenge: React.FC<TerminalChallengeProps> = ({
                   (replace filename with the actual file)
                 </li>
                 <li>
-                  When prompted, enter the password you've figured out from the
-                  hints.
+                  When prompted, enter the password you&apos;ve figured out from
+                  the hints.
                 </li>
                 <li>If correct, the program will reveal the secret message.</li>
                 <li>Submit the secret message here to earn points!</li>

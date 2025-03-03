@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   FileText,
   Monitor,
@@ -11,7 +10,9 @@ import {
   Shuffle,
   ChevronRight,
   Clock,
-  Lightbulb,
+  Info,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { allChallenges, Challenge } from "@/data/round2QuestionData";
 import { getGameState, calculateRemainingTime } from "@/utils/apiService";
@@ -19,7 +20,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 const ChallengeHub: React.FC = () => {
   const { teamData } = useAuth();
-  const router = useRouter();
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [isRoundActive, setIsRoundActive] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -102,7 +102,7 @@ const ChallengeHub: React.FC = () => {
   };
 
   // Determine challenge status color
-  const getChallengeStatusColor = (id: number) => {
+  const getChallengeStatusColor = () => {
     return "bg-gray-700 hover:bg-gray-600";
   };
 
@@ -131,17 +131,32 @@ const ChallengeHub: React.FC = () => {
             )}
           </div>
 
-          {remainingTime !== null && (
-            <div className="flex items-center gap-3 bg-gray-800/80 p-3 rounded-lg border border-blue-500/30 mt-4 md:mt-0">
-              <Clock className="h-5 w-5 text-blue-400" />
-              <div>
-                <div className="text-xs text-gray-400">Remaining Time</div>
-                <div className="text-xl font-mono text-white">
-                  {formatTime(remainingTime)}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4 md:mt-0">
+            {remainingTime !== null && (
+              <div className="flex items-center gap-3 bg-gray-800/80 p-3 rounded-lg border border-blue-500/30">
+                <Clock className="h-5 w-5 text-blue-400" />
+                <div>
+                  <div className="text-xs text-gray-400">Remaining Time</div>
+                  <div className="text-xl font-mono text-white">
+                    {formatTime(remainingTime)}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+            <button
+              onClick={() => setShowInstructions(!showInstructions)}
+              className="flex items-center gap-2 bg-blue-900/80 hover:bg-blue-800 p-3 rounded-lg border border-blue-500/30 text-white transition-colors"
+            >
+              <Info className="h-5 w-5" />
+              <span>Instructions</span>
+              {showInstructions ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
 
         {showInstructions && (
@@ -163,7 +178,7 @@ const ChallengeHub: React.FC = () => {
                   <li>
                     <span className="text-blue-300">PDF Challenges (1-3):</span>{" "}
                     Figure out the password to unlock a PDF file. Inside the
-                    PDF, you'll find a secret message to submit.
+                    PDF, you&apos;ll find a secret message to submit.
                   </li>
                   <li>
                     <span className="text-blue-300">
@@ -198,8 +213,8 @@ const ChallengeHub: React.FC = () => {
                   <li>You have unlimited attempts for each challenge</li>
                   <li>You can navigate between challenges at any time</li>
                   <li>
-                    For terminal challenges, you'll need to run C programs on
-                    your computer to find the secret messages
+                    For terminal challenges, you&apos;ll need to run C programs
+                    on your computer to find the secret messages
                   </li>
                 </ul>
               </div>
@@ -219,8 +234,8 @@ const ChallengeHub: React.FC = () => {
                     )
                   </li>
                   <li>
-                    When prompted, enter the password you've figured out from
-                    the hints
+                    When prompted, enter the password you&apos;ve figured out
+                    from the hints
                   </li>
                   <li>
                     The program will reveal the secret message if the password
@@ -240,9 +255,7 @@ const ChallengeHub: React.FC = () => {
             <Link
               key={challenge.id}
               href={`/challenges/crack-the-password/${challenge.id}`}
-              className={`${getChallengeStatusColor(
-                challenge.id
-              )} border border-blue-500/30 rounded-lg p-5 hover:scale-105 transition-transform`}
+              className={`${getChallengeStatusColor()} border border-blue-500/30 rounded-lg p-5 hover:scale-105 transition-transform`}
             >
               <div className="flex items-start gap-4">
                 <div className="bg-blue-900/50 text-blue-300 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">

@@ -8,7 +8,6 @@ import {
   Lightbulb,
   Check,
   X,
-  Monitor,
   Keyboard,
   Shuffle,
   Hash,
@@ -80,10 +79,6 @@ const WordScrambleChallenge: React.FC<WordScrambleChallengeProps> = ({
     } else {
       router.push("/challenges");
     }
-  };
-
-  const handleFinish = () => {
-    router.push("/challenges");
   };
 
   if (success) {
