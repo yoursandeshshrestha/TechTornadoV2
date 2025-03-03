@@ -1,7 +1,7 @@
 const Admin = require("../models/Admin");
 const Team = require("../models/Team");
 const GameState = require("../models/gameState");
-const { getIO } = require("../config/socket");
+const { getIO, updateLeaderboard } = require("../config/socket");
 const { getRoundDuration, calculatePoints } = require("../utils/helpers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
