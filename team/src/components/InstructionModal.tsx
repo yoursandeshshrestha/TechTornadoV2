@@ -72,7 +72,7 @@ export const InstructionModal = ({
             </h2>
             <div className="space-y-2">
               <p>
-                A challenging cryptography game where you'll need to decode
+                A challenging cryptography game where you&apos;ll need to decode
                 encrypted messages and find the hidden passwords.
               </p>
 
