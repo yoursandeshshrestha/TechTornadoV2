@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import ChallengeFactory from "@/components/round2/ChallengeFactory";
+import ChallengeFactory from "@/components/CrackThePassword/ChallengeFactory";
 import { useParams } from "next/navigation";
 
 export default function ChallengePage() {
-  // Ensure user is authenticated
   useRequireAuth();
 
   const params = useParams();

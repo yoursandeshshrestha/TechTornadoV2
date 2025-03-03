@@ -9,91 +9,65 @@ import {
   Compass,
   Shuffle,
   ChevronRight,
-  Clock,
   Info,
   ChevronDown,
   ChevronUp,
+  ArrowLeft,
+  Home,
 } from "lucide-react";
 import { allChallenges, Challenge } from "@/data/round2QuestionData";
-import { getGameState, calculateRemainingTime } from "@/utils/apiService";
+import { getGameState } from "@/utils/apiService";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+
+// Import common RoundNotActiveScreen
+import RoundNotActiveScreen from "@/components/common/RoundNotActiveScreen";
 
 const ChallengeHub: React.FC = () => {
   const { teamData } = useAuth();
-  const [remainingTime, setRemainingTime] = useState<number | null>(null);
-  const [isRoundActive, setIsRoundActive] = useState(true);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [isRoundActive, setIsRoundActive] = useState<boolean>(true);
+  const [showInstructions, setShowInstructions] = useState<boolean>(false);
+  const [currentRound, setCurrentRound] = useState<number>(0);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchGameState = async () => {
-      const gameState = await getGameState();
+    const fetchGameState = async (): Promise<void> => {
+      try {
+        const gameState = await getGameState();
 
-      if (gameState) {
-        if (gameState.currentRound !== 2) {
-          setIsRoundActive(false);
-          return;
+        if (gameState) {
+          // Store the current round for the RoundNotActiveScreen
+          setCurrentRound(gameState.currentRound);
+
+          if (gameState.currentRound !== 2) {
+            setIsRoundActive(false);
+          }
         }
-
-        const timeRemaining = calculateRemainingTime(gameState.roundEndTime);
-        setRemainingTime(timeRemaining);
-
-        // Set up interval to update the remaining time
-        const interval = setInterval(() => {
-          setRemainingTime((prev) => {
-            if (prev === null || prev <= 1000) {
-              clearInterval(interval);
-              fetchGameState();
-              return 0;
-            }
-            return prev - 1000;
-          });
-        }, 1000);
-
-        return () => clearInterval(interval);
+      } catch (error) {
+        console.error("Error fetching game state:", error);
       }
     };
 
     fetchGameState();
 
-    // Refresh game state every minute
-    const refreshInterval = setInterval(fetchGameState, 60000);
+    // Refresh game state occasionally
+    const refreshInterval = setInterval(fetchGameState, 120000); // every 2 minutes
     return () => clearInterval(refreshInterval);
   }, []);
 
-  // Format remaining time as MM:SS
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
+  // Handler for returning to dashboard
+  const goBackToDashboard = (): void => {
+    router.push("/");
   };
 
   if (!isRoundActive) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-800 rounded-lg p-8 text-center space-y-6 border border-red-900">
-          <h1 className="text-3xl font-bold text-red-400">
-            Round 2 Not Active
-          </h1>
-          <p className="text-gray-300">
-            The Crack the Password round is not currently active. Please check
-            back later.
-          </p>
-          <Link
-            href="/"
-            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-          >
-            Return to Home
-          </Link>
-        </div>
-      </div>
+      <RoundNotActiveScreen onClick={goBackToDashboard} round={currentRound} />
     );
   }
 
   // Get challenge icon based on type
-  const getChallengeIcon = (id: number) => {
+  const getChallengeIcon = (id: number): React.ReactNode => {
     if (id <= 3) return <FileText className="h-5 w-5" />;
     if (id <= 5) return <Cpu className="h-5 w-5" />;
     if (id <= 8) return <Monitor className="h-5 w-5" />;
@@ -102,22 +76,33 @@ const ChallengeHub: React.FC = () => {
   };
 
   // Determine challenge status color
-  const getChallengeStatusColor = () => {
+  const getChallengeStatusColor = (): string => {
     return "bg-gray-700 hover:bg-gray-600";
   };
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center p-4"
+      className="min-h-screen bg-cover bg-center relative"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80')",
       }}
     >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-gray-900/95 z-0"></div>
+      {/* Add a semi-transparent overlay background */}
+      <div className="absolute inset-0 bg-black/80"></div>
 
-      <div className="relative z-10 max-w-5xl mx-auto pt-8">
+      <div className="relative z-10 max-w-5xl mx-auto pt-8 p-4">
+        {/* Back button to home */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-100 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back to Dashboard</span>
+          </Link>
+        </div>
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -132,17 +117,10 @@ const ChallengeHub: React.FC = () => {
           </div>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4 md:mt-0">
-            {remainingTime !== null && (
-              <div className="flex items-center gap-3 bg-gray-800/80 p-3 rounded-lg border border-blue-500/30">
-                <Clock className="h-5 w-5 text-blue-400" />
-                <div>
-                  <div className="text-xs text-gray-400">Remaining Time</div>
-                  <div className="text-xl font-mono text-white">
-                    {formatTime(remainingTime)}
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Simple message instead of timer */}
+            <div className="bg-gray-800/80 p-3 rounded-lg border border-blue-500/30">
+              <p className="text-blue-300">Game in progress</p>
+            </div>
 
             <button
               onClick={() => setShowInstructions(!showInstructions)}
@@ -160,7 +138,7 @@ const ChallengeHub: React.FC = () => {
         </div>
 
         {showInstructions && (
-          <div className="bg-gray-800/80 border border-blue-500/30 rounded-lg p-6 mb-8">
+          <div className="bg-gray-800/90 border border-blue-500/40 rounded-lg p-6 mb-8 shadow-lg">
             <h2 className="text-xl font-bold text-blue-400 mb-4">
               Round 2 Instructions
             </h2>
@@ -225,13 +203,22 @@ const ChallengeHub: React.FC = () => {
                 </h3>
                 <ol className="list-decimal pl-5 space-y-1">
                   <li>Open a terminal window on the computer</li>
-                  <li>Navigate to the folder containing the C program files</li>
                   <li>
-                    Run the program (example:{" "}
+                    Navigate to the folder containing the C program files using
+                    the <code className="bg-gray-700 px-1 rounded">cd</code>{" "}
+                    command
+                  </li>
+                  <li>
+                    Compile the C program using:
                     <code className="bg-gray-700 px-1 rounded">
-                      ./ai_research.c
+                      gcc -o ai_research ai_research.c
                     </code>
-                    )
+                  </li>
+                  <li>
+                    Run the compiled program using:
+                    <code className="bg-gray-700 px-1 rounded">
+                      ./ai_research
+                    </code>
                   </li>
                   <li>
                     When prompted, enter the password you&apos;ve figured out
@@ -251,11 +238,11 @@ const ChallengeHub: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(allChallenges as Challenge[]).map((challenge) => (
+          {allChallenges.map((challenge: Challenge) => (
             <Link
               key={challenge.id}
               href={`/challenges/crack-the-password/${challenge.id}`}
-              className={`${getChallengeStatusColor()} border border-blue-500/30 rounded-lg p-5 hover:scale-105 transition-transform`}
+              className={`${getChallengeStatusColor()} border border-blue-500/30 rounded-lg p-5 hover:scale-105 transition-transform hover:shadow-lg`}
             >
               <div className="flex items-start gap-4">
                 <div className="bg-blue-900/50 text-blue-300 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">

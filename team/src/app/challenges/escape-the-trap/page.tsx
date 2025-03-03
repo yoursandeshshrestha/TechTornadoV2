@@ -14,7 +14,7 @@ import { GameState } from "./types";
 // Import components
 import LoadingScreen from "./components/LoadingScreen";
 import GameOverScreen from "./components/GameOverScreen";
-import RoundNotActiveScreen from "./components/RoundNotActiveScreen";
+import RoundNotActiveScreen from "../../../components/common/RoundNotActiveScreen";
 import CompletionScreen from "./components/CompletionScreen";
 import MaxAttemptsScreen from "./components/MaxAttemptsScreen";
 import ChallengeDescription from "./components/ChallengeDescription";

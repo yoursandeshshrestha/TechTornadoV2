@@ -10,22 +10,6 @@ const RoundNotActiveScreen: React.FC<RoundNotActiveScreenProps> = ({
   onClick,
   round,
 }) => {
-  // Dynamic content based on the round number
-  const getRoundName = (roundNum: number) => {
-    switch (roundNum) {
-      case 0:
-        return "Registration";
-      case 1:
-        return "AI Charades";
-      case 2:
-        return "Crack the Password";
-      case 3:
-        return "Escape the Trap";
-      default:
-        return `Round ${roundNum}`;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-indigo-950 to-black flex items-center justify-center p-4 overflow-hidden">
       {/* Animated background effects */}
@@ -67,7 +51,7 @@ const RoundNotActiveScreen: React.FC<RoundNotActiveScreenProps> = ({
             <div className="space-y-4 text-gray-300">
               <p className="text-xl">Current active round is {round}.</p>
               <p className="text-lg">
-                {getRoundName(3)} challenge is not available at this time.
+                challenge is not available at this time.
               </p>
             </div>
 

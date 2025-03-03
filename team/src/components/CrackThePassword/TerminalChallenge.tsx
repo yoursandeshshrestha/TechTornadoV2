@@ -215,8 +215,7 @@ const TerminalChallenge: React.FC<TerminalChallengeProps> = ({
             <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4 mb-6 text-yellow-300 flex items-start gap-2 animate-fade-in">
               <Lightbulb className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <p className="text-sm font-mono">
-                Combine all the hints to form the password. The password for
-                this challenge is: {challenge.password}
+                Combine all the hints to form the password.
               </p>
             </div>
           )}

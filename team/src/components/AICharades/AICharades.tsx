@@ -7,21 +7,17 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { getTokenFromCookie, removeTokenCookie } from "@/utils/auth";
 import { Toaster, toast } from "sonner";
 
-// Import component parts
-import {
-  LoadingScreen,
-  RoundNotActiveScreen,
-  ResultsScreen,
-} from "./GameScreens";
+// Import component parts - remove the RoundNotActiveScreen import
+import { LoadingScreen, ResultsScreen } from "./GameScreens";
+
+// Import common RoundNotActiveScreen
+import RoundNotActiveScreen from "@/components/common/RoundNotActiveScreen";
 import GameScreen from "./GameScreen";
 import { Question, GameState, AnswerResponse } from "@/types/game";
 
 // API Base URL from environment variable
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
-
-// Log the API URL for debugging
-console.log("Using API base URL:", API_BASE_URL);
 
 const AICharades: React.FC = () => {
   useRequireAuth();
@@ -41,6 +37,7 @@ const AICharades: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [roundActive, setRoundActive] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [currentRound, setCurrentRound] = useState<number>(0);
 
   // Fetch the round status and time remaining
   useEffect(() => {
@@ -55,12 +52,6 @@ const AICharades: React.FC = () => {
           return;
         }
 
-        console.log(
-          "Fetching game state from:",
-          `${API_BASE_URL}/api/game/current-state`
-        );
-        console.log("Auth token available:", !!token);
-
         const response = await fetch(`${API_BASE_URL}/api/game/current-state`, {
           method: "GET",
           headers: {
@@ -68,8 +59,6 @@ const AICharades: React.FC = () => {
             Accept: "application/json",
           },
         });
-
-        console.log("Game state response status:", response.status);
 
         if (response.status === 401 || response.status === 403) {
           console.error("Authentication failed:", response.status);
@@ -86,7 +75,9 @@ const AICharades: React.FC = () => {
         }
 
         const data: GameState = await response.json();
-        console.log("Game state data:", data);
+
+        // Store the current round number
+        setCurrentRound(data.currentRound);
 
         if (data.currentRound === 1 && data.isGameActive && !data.isPaused) {
           setRoundActive(true);
@@ -135,8 +126,6 @@ const AICharades: React.FC = () => {
 
         // Ensure URL matches exactly with what works in Postman
         const questionsUrl = `${API_BASE_URL}/api/game/questionsbyround/roundNumber/1`;
-        console.log("Fetching questions from:", questionsUrl);
-        console.log("Using auth token:", token.substring(0, 10) + "...");
 
         const response = await fetch(questionsUrl, {
           method: "GET",
@@ -145,8 +134,6 @@ const AICharades: React.FC = () => {
             Accept: "application/json",
           },
         });
-
-        console.log("Response status:", response.status);
 
         if (response.status === 401 || response.status === 403) {
           console.error("Authentication failed:", response.status);
@@ -163,7 +150,6 @@ const AICharades: React.FC = () => {
         }
 
         const responseData = await response.json();
-        console.log("Questions API response:", responseData);
 
         if (responseData.success) {
           // The API returns the data directly in the data array, not in data.questions
@@ -183,14 +169,6 @@ const AICharades: React.FC = () => {
               points: q.points || 0,
             }));
 
-            console.log(
-              "Transformed questions with isAnswered states:",
-              transformedQuestions.map((q) => ({
-                id: q.id,
-                isAnswered: q.isAnswered,
-              }))
-            );
-
             // Set current score (only count points from questions marked as answered)
             const answeredQuestions = transformedQuestions.filter(
               (q) => q.isAnswered
@@ -199,21 +177,11 @@ const AICharades: React.FC = () => {
               (sum, q) => sum + q.points,
               0
             );
-            console.log(
-              "Answered questions:",
-              answeredQuestions.length,
-              "Total points:",
-              totalPoints
-            );
             setScore(totalPoints);
 
             // Find the first unanswered question
             const firstUnansweredIndex = transformedQuestions.findIndex(
               (q) => !q.isAnswered
-            );
-            console.log(
-              "First unanswered question index:",
-              firstUnansweredIndex
             );
 
             if (firstUnansweredIndex !== -1) {
@@ -303,19 +271,12 @@ const AICharades: React.FC = () => {
         return;
       }
 
-      console.log(
-        "Submitting answer to:",
-        `${API_BASE_URL}/api/game/submit-answer`
-      );
-
       // Log the payload for debugging
       const payload = {
         roundNumber: 1,
         questionNumber: currentQuestion.id,
         answer: userAnswer.trim(),
       };
-      console.log("Submission payload:", payload);
-      console.log("Using auth token:", token.substring(0, 10) + "...");
 
       const response = await fetch(`${API_BASE_URL}/api/game/submit-answer`, {
         method: "POST",
@@ -326,8 +287,6 @@ const AICharades: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-
-      console.log("Answer submission response status:", response.status);
 
       if (response.status === 401 || response.status === 403) {
         console.error("Authentication failed:", response.status);
@@ -344,7 +303,6 @@ const AICharades: React.FC = () => {
       }
 
       const data: AnswerResponse = await response.json();
-      console.log("Answer submission response:", data);
 
       if (!data.success) {
         if (data.message === "This round is not active") {
@@ -475,7 +433,9 @@ const AICharades: React.FC = () => {
   }
 
   if (!roundActive && !showResults) {
-    return <RoundNotActiveScreen onBackToDashboard={goBackToDashboard} />;
+    return (
+      <RoundNotActiveScreen onClick={goBackToDashboard} round={currentRound} />
+    );
   }
 
   if (showResults) {

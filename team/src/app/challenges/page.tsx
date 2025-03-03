@@ -10,5 +10,5 @@ export default function ChallengesPage() {
     window.location.replace("/");
   }, []);
 
-  return null; // Prevents rendering any UI since the page will redirect immediately
+  return null;
 }
