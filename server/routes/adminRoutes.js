@@ -15,6 +15,9 @@ const {
   createBulkQuestions,
   startRound,
   terminateRoundController,
+  getTeams,
+  getTeamById,
+  deleteTeam,
 } = require("../controllers/adminController");
 
 // Auth routes
@@ -39,5 +42,10 @@ router.post("/round/terminate", authenticateAdmin, terminateRoundController);
 // Toggle Registration
 router.post("/registration/open", authenticateAdmin, openRegistration);
 router.post("/registration/close", authenticateAdmin, closeRegistration);
+
+// Team Related Routes - Add these new routes
+router.get("/teams", authenticateAdmin, getTeams);
+router.get("/teams/:id", authenticateAdmin, getTeamById);
+router.delete("/teams/:id", authenticateAdmin, deleteTeam);
 
 module.exports = router;
