@@ -7,24 +7,27 @@ const notFoundHandler = require("./utils/notFoundHandler");
 const adminRoutes = require("./routes/adminRoutes");
 const teamRoutes = require("./routes/teamRoutes");
 const gameRoutes = require("./routes/gameRoutes");
+const corsConfig = require("./config/corsConfig");
+
+// Load environment variables
+require("dotenv").config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "http://localhost:4000"], // Your frontend URL
-    credentials: true,
-  })
-);
+// Apply CORS configuration from environment
+app.use(cors(corsConfig()));
+
 app.use(express.json());
 
-// File upload middleware
+// File upload middleware with configuration from environment
 app.use(
   fileUpload({
-    limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
-    createParentPath: true, // Create upload directories if they don't exist
+    limits: {
+      fileSize: parseInt(process.env.FILE_UPLOAD_LIMIT || 10 * 1024 * 1024),
+    },
+    createParentPath: true,
     useTempFiles: true,
-    tempFileDir: "/tmp/",
+    tempFileDir: process.env.FILE_UPLOAD_TEMP_DIR || "/tmp/",
     abortOnLimit: true,
   })
 );
