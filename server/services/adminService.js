@@ -839,6 +839,140 @@ const terminateRound = async () => {
   }
 };
 
+const getTeams = async () => {
+  try {
+    const teams = await Team.find({}).sort({ createdAt: -1 });
+
+    if (!teams || teams.length === 0) {
+      return {
+        success: false,
+        message: "No teams found in the database",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Teams retrieved successfully",
+      data: teams,
+    };
+  } catch (error) {
+    logger.error("Error retrieving teams:", error);
+    return {
+      success: false,
+      message: "Error retrieving teams: " + error.message,
+      data: null,
+    };
+  }
+};
+
+const getTeamById = async (teamId) => {
+  try {
+    // Validate teamId
+    if (!teamId) {
+      return {
+        success: false,
+        message: "Team ID is required",
+        code: "MISSING_ID",
+      };
+    }
+
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+      return {
+        success: false,
+        message: "Team not found",
+        code: "NOT_FOUND",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Team retrieved successfully",
+      data: team,
+    };
+  } catch (error) {
+    // Handle case when ID format is invalid
+    if (error.name === "CastError") {
+      return {
+        success: false,
+        message: "Invalid team ID format",
+        code: "INVALID_ID",
+      };
+    }
+
+    logger.error("Error retrieving team by ID:", error);
+    return {
+      success: false,
+      message: "Failed to retrieve team",
+      error: error.message,
+      code: "INTERNAL_ERROR",
+    };
+  }
+};
+
+const deleteTeam = async (teamId) => {
+  try {
+    // Validate teamId
+    if (!teamId) {
+      return {
+        success: false,
+        message: "Team ID is required",
+        code: "MISSING_ID",
+      };
+    }
+
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+      return {
+        success: false,
+        message: "Team not found",
+        code: "NOT_FOUND",
+      };
+    }
+
+    // Delete the team
+    await Team.findByIdAndDelete(teamId);
+
+    // Optionally, update leaderboard after team deletion
+    try {
+      const io = getIO();
+      const leaderboardData = await updateLeaderboard();
+      io.emit("leaderboardUpdate", leaderboardData);
+    } catch (leaderboardError) {
+      logger.error(
+        "Error updating leaderboard after team deletion:",
+        leaderboardError
+      );
+      // Continue with response even if leaderboard update fails
+    }
+
+    return {
+      success: true,
+      message: "Team deleted successfully",
+    };
+  } catch (error) {
+    // Handle case when ID format is invalid
+    if (error.name === "CastError") {
+      return {
+        success: false,
+        message: "Invalid team ID format",
+        code: "INVALID_ID",
+      };
+    }
+
+    logger.error("Error deleting team:", error);
+    return {
+      success: false,
+      message: "Failed to delete team",
+      error: error.message,
+      code: "INTERNAL_ERROR",
+    };
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -855,4 +989,7 @@ module.exports = {
   getRegistrationStatus,
   createBulkQuestions,
   terminateRound,
+  getTeams,
+  getTeamById,
+  deleteTeam,
 };
