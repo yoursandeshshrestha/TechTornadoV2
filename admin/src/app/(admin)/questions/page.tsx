@@ -80,6 +80,11 @@ const QuestionManager = () => {
 
       if (response.success && Array.isArray(response.data)) {
         setAllQuestions(response.data);
+      } else if (response.message === "No questions found") {
+        // Handle the empty questions case gracefully
+        console.info("No questions available in the database");
+        toast.info("No questions found. Add some questions to get started!");
+        setAllQuestions([]);
       } else {
         console.warn("Unexpected response format:", response);
         toast.warning("Unexpected response format from server");
@@ -403,18 +408,42 @@ const QuestionManager = () => {
         </div>
       </div>
 
-      <QuestionList
-        questions={filteredQuestions}
-        onDelete={(question) => {
-          setSelectedQuestion(question);
-          setIsDeleteModalOpen(true);
-        }}
-        onEdit={(question) => {
-          setSelectedQuestion(question);
-          setIsEditModalOpen(true);
-        }}
-        isLoading={isLoading}
-      />
+      {filteredQuestions.length === 0 && !isLoading ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="bg-blue-50 p-4 rounded-full">
+              <Plus className="h-10 w-10 text-blue-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800">
+              No questions found
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              {activeRound === "All Rounds"
+                ? "There are no questions yet. Click the 'Add Question' button to create your first question."
+                : `There are no questions in Round ${activeRound}. Select a different round or add a new question.`}
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium shadow-sm hover:bg-green-700 hover:shadow transition-all"
+            >
+              <Plus className="h-5 w-5" /> Add Question
+            </button>
+          </div>
+        </div>
+      ) : (
+        <QuestionList
+          questions={filteredQuestions}
+          onDelete={(question) => {
+            setSelectedQuestion(question);
+            setIsDeleteModalOpen(true);
+          }}
+          onEdit={(question) => {
+            setSelectedQuestion(question);
+            setIsEditModalOpen(true);
+          }}
+          isLoading={isLoading}
+        />
+      )}
 
       <AddQuestionModal
         isOpen={isAddModalOpen}
