@@ -326,6 +326,81 @@ const terminateRoundController = async (req, res) => {
   }
 };
 
+const getTeams = async (req, res) => {
+  try {
+    const result = await adminService.getTeams();
+
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Get teams controller error:", error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred while retrieving teams",
+      code: "INTERNAL_ERROR",
+    });
+  }
+};
+
+const getTeamById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.getTeamById(id);
+
+    // Handle different error codes with appropriate status codes
+    if (!result.success) {
+      const statusCode =
+        result.code === "NOT_FOUND"
+          ? 404
+          : result.code === "INVALID_ID" || result.code === "MISSING_ID"
+          ? 400
+          : 500;
+
+      return res.status(statusCode).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Get team by ID controller error:", error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred while retrieving the team",
+      code: "INTERNAL_ERROR",
+    });
+  }
+};
+
+const deleteTeam = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.deleteTeam(id);
+
+    // Handle different error codes with appropriate status codes
+    if (!result.success) {
+      const statusCode =
+        result.code === "NOT_FOUND"
+          ? 404
+          : result.code === "INVALID_ID" || result.code === "MISSING_ID"
+          ? 400
+          : 500;
+
+      return res.status(statusCode).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Delete team controller error:", error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred while deleting the team",
+      code: "INTERNAL_ERROR",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -340,4 +415,7 @@ module.exports = {
   createBulkQuestions,
   startRound,
   terminateRoundController,
+  getTeams,
+  getTeamById,
+  deleteTeam,
 };
