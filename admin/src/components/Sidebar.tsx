@@ -2,7 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, HelpCircle, LogOut, Trophy } from "lucide-react";
+import {
+  LayoutDashboard,
+  HelpCircle,
+  LogOut,
+  Trophy,
+  Users,
+} from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/redux/features/authSlice";
 import { AppDispatch } from "@/lib/redux/store";
@@ -22,6 +28,11 @@ const navigationItems = [
     title: "Questions",
     icon: <HelpCircle className="h-5 w-5" />,
     path: "/questions",
+  },
+  {
+    title: "Teams",
+    icon: <Users className="h-5 w-5" />,
+    path: "/team",
   },
   {
     title: "Leaderboard",
