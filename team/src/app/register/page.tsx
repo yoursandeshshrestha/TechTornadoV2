@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   htmlFor="memberTwo"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Member 2 (Optional)
+                  Member 2
                 </label>
                 <input
                   id="memberTwo"
