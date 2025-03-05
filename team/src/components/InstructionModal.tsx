@@ -64,7 +64,7 @@ export const InstructionModal = ({
             </div>
           </>
         );
-      case "crack-password":
+      case "crack-the-password":
         return (
           <>
             <h2 className="text-xl font-semibold mb-4">
@@ -83,7 +83,7 @@ export const InstructionModal = ({
             </div>
           </>
         );
-      case "escape-trap":
+      case "escape-the-trap":
         return (
           <>
             <h2 className="text-xl font-semibold mb-4">
