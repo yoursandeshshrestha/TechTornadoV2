@@ -15,52 +15,49 @@ export const InstructionModal = ({
       case "ai-charades":
         return (
           <>
-            <h2 className="text-xl font-semibold mb-4">
-              Welcome to AI_Charades!
-            </h2>
-            <div className="space-y-2">
-              <p>
-                <strong>Game Rules:</strong>
-              </p>
+            <h2 className="text-xl font-semibold mb-4">Round 1: AI Charades</h2>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-4">
+                <p className="bg-blue-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🕒</span> Time Limit: 30 minutes
+                </p>
+                <p className="bg-purple-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">❓</span> Questions: 15
+                </p>
+                <p className="bg-green-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🔢</span> Scoring: 1 mark per question
+                </p>
+                <p className="bg-yellow-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">📊</span> Qualification: Top 50% of
+                  teams advance
+                </p>
+              </div>
+
+              <p className="font-medium mt-2">Instructions:</p>
               <ol className="list-decimal pl-5 space-y-1">
+                <li>Teams will receive 15 AI-related riddles.</li>
+                <li>Each question has one correct answer worth 1 point.</li>
                 <li>
-                  You will be shown AI-generated images that represent common
-                  words or phrases
+                  Participants can:
+                  <ul className="list-disc pl-5 pt-1">
+                    <li>
+                      <em>Skip a question</em> and come back later.
+                    </li>
+                    <li>
+                      <em>Navigate freely</em> between previous and next
+                      questions.
+                    </li>
+                  </ul>
                 </li>
                 <li>
-                  Your team needs to guess the correct word within the time
-                  limit
+                  After <em>30 minutes</em>, the quiz will be automatically
+                  submitted.
                 </li>
                 <li>
-                  Each correct guess earns points based on how quickly you
-                  answer
-                </li>
-                <li>You have 3 attempts per image</li>
-                <li>
-                  Hints will be available but using them reduces the points you
-                  can earn
+                  The <em>top 50% of teams</em> with the highest scores will
+                  move on to <em>Round 2</em>.
                 </li>
               </ol>
-
-              <p className="mt-4">
-                <strong>Scoring:</strong>
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Quick correct answer (within 30s): 100 points</li>
-                <li>Correct answer (30s-60s): 75 points</li>
-                <li>Correct answer with hint: 50 points</li>
-                <li>Incorrect attempts: -10 points each</li>
-              </ul>
-
-              <p className="mt-4">
-                <strong>Tips:</strong>
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Look for obvious patterns and shapes in the images</li>
-                <li>Consider both literal and metaphorical interpretations</li>
-                <li>Discuss with your teammate before submitting an answer</li>
-                <li>Use hints strategically when stuck</li>
-              </ul>
             </div>
           </>
         );
@@ -68,18 +65,80 @@ export const InstructionModal = ({
         return (
           <>
             <h2 className="text-xl font-semibold mb-4">
-              Welcome to Crack the Password!
+              Round 2: Crack the Password (CTP)
             </h2>
-            <div className="space-y-2">
-              <p>
-                A challenging cryptography game where you&apos;ll need to decode
-                encrypted messages and find the hidden passwords.
-              </p>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-4">
+                <p className="bg-blue-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🕒</span> Time Limit: 40 minutes
+                </p>
+                <p className="bg-purple-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">❓</span> Questions: 10
+                </p>
+                <p className="bg-green-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🔢</span> Scoring: 5 points per
+                  question
+                </p>
+                <p className="bg-yellow-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">📊</span> Qualification: Top 25% of
+                  teams advance
+                </p>
+              </div>
 
-              <p className="mt-4">
-                <strong>This challenge is currently locked.</strong>
-              </p>
-              <p>Complete AI_Charades first to unlock this challenge.</p>
+              <p className="font-medium mt-2">Instructions:</p>
+              <ol className="list-decimal pl-5 space-y-1">
+                <li>
+                  This round consists of{" "}
+                  <em>10 password-cracking challenges</em>, including:
+                  <ul className="list-disc pl-5 pt-1">
+                    <li>
+                      <em>Finding a common word linking three clues</em>
+                    </li>
+                    <li>
+                      <em>Unlocking PDFs using hints</em>
+                    </li>
+                    <li>
+                      <em>Cracking encrypted messages</em>
+                    </li>
+                    <li>
+                      <em>Solving logic-based puzzles</em>
+                    </li>
+                    <li>
+                      <em>Deciphering number patterns</em>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  Each correct answer earns <em>5 points</em>.
+                </li>
+                <li>
+                  Participants can:
+                  <ul className="list-disc pl-5 pt-1">
+                    <li>
+                      <em>Skip questions and return later</em>.
+                    </li>
+                    <li>
+                      <em>Navigate freely between questions</em>.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  After <em>40 minutes</em>, the system will submit responses
+                  automatically.
+                </li>
+                <li>
+                  The <em>top 25% of teams</em> with the highest scores will
+                  advance to <em>Round 3: Escape the Trap</em>.
+                </li>
+              </ol>
+
+              {!challenge.isUnlocked && (
+                <p className="mt-4 text-orange-600 font-medium">
+                  <strong>This challenge is currently locked.</strong>
+                  <br />
+                  Complete AI_Charades first to unlock this challenge.
+                </p>
+              )}
             </div>
           </>
         );
@@ -87,20 +146,72 @@ export const InstructionModal = ({
         return (
           <>
             <h2 className="text-xl font-semibold mb-4">
-              Welcome to Escape the Trap!
+              Round 3: Escape the Trap (Finale)
             </h2>
-            <div className="space-y-2">
-              <p>
-                Navigate through a series of logical puzzles and programming
-                challenges to escape the digital maze.
-              </p>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-4">
+                <p className="bg-blue-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🕒</span> Time Limit: 50 minutes
+                </p>
+                <p className="bg-yellow-100 px-3 py-1 rounded-full text-sm flex items-center">
+                  <span className="mr-1">🏆</span> Winning Criteria: Highest
+                  total score wins
+                </p>
+              </div>
 
-              <p className="mt-4">
-                <strong>This challenge is currently locked.</strong>
-              </p>
-              <p>
-                Complete previous challenges first to unlock Escape the Trap.
-              </p>
+              <p className="font-medium mt-2">Instructions:</p>
+              <ol className="list-decimal pl-5 space-y-1">
+                <li>
+                  <em>This round consists of 2 challenges.</em>
+                </li>
+                <li>
+                  <em>Challenge 1</em>:
+                  <ul className="list-disc pl-5 pt-1">
+                    <li>
+                      Teams get <em>3 attempts</em> to solve the puzzle.
+                    </li>
+                    <li>
+                      <em>Points Distribution:</em>
+                      <ul className="list-none pl-5 pt-1">
+                        <li>
+                          - <em>1st attempt</em>: 30 points
+                        </li>
+                        <li>
+                          - <em>2nd attempt</em>: 20 points
+                        </li>
+                        <li>
+                          - <em>3rd attempt</em>: 10 points
+                        </li>
+                        <li>
+                          - <em>Failure in 3 attempts</em>: 0 points (proceeds
+                          to Challenge 2)
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <em>Challenge 2</em>:
+                  <ul className="list-disc pl-5 pt-1">
+                    <li>
+                      Same <em>scoring rules</em> as Challenge 1.
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  After both challenges, the team with the{" "}
+                  <em>highest total score</em> will be declared the{" "}
+                  <em>Tech Tornado Champion!</em> 🎉
+                </li>
+              </ol>
+
+              {!challenge.isUnlocked && (
+                <p className="mt-4 text-orange-600 font-medium">
+                  <strong>This challenge is currently locked.</strong>
+                  <br />
+                  Complete previous challenges first to unlock Escape the Trap.
+                </p>
+              )}
             </div>
           </>
         );
