@@ -1,9 +1,9 @@
 # TechTornadoV2 – From Concept to Reality
 
 ## **Overview**
-TechTornadoV2 was not just another project—it was a high-pressure challenge that pushed both technical and leadership boundaries. What started as a simple database request from a faculty member and a group of juniors quickly evolved into a full-fledged **real-time game platform** requiring a robust backend, an intuitive admin panel, and a seamless frontend experience.
+TechTornadoV2 was not just another project—it was a high-pressure challenge that pushed both technical and leadership boundaries. What started as a simple database request from a faculty member and a group of juniors quickly evolved into a full-fledged **real-time game platform** requiring a robust backend, an intuitive admin panel, a seamless frontend experience, and a **fully hosted production environment**.
 
-With **less than a week** to deliver, I had to make strategic decisions: structuring the backend for real-time communication, ensuring scalability, and stepping in to completely rebuild the frontend when the initial version failed to meet expectations. The final product? A **production-grade** game platform used by **200+ students**, delivered on time.
+With **less than a week** to deliver, I had to make strategic decisions: structuring the backend for real-time communication, ensuring scalability, stepping in to completely rebuild the frontend when the initial version failed to meet expectations, and finally, **securing a domain, setting up a VPS, and deploying the platform using Hostinger with a reverse proxy configuration**. The final product? A **production-grade** game platform used by **200+ students**, delivered on time.
 
 ---
 
@@ -21,7 +21,12 @@ With **less than a week** to deliver, I had to make strategic decisions: structu
   - **Efficient API consumption** to sync real-time game states.
   - **An admin panel** for effortless question management and leaderboard tracking.
 
-### **3. Extreme Time Constraints**
+### **3. Hosting & Deployment**
+- I secured a **custom domain** and set up a **VPS hosting environment** for production.
+- Configured **Hostinger's reverse proxy** to efficiently route traffic to the backend services.
+- Ensured **scalability and uptime stability**, making the platform accessible to all participants.
+
+### **4. Extreme Time Constraints**
 - With job commitments during the day, I had to **work nights** to meet the deadline.
 - Ensured **tight coordination with the team** to delegate tasks efficiently.
 - Balanced speed with quality—delivering a production-ready system without compromising maintainability.
@@ -32,6 +37,7 @@ With **less than a week** to deliver, I had to make strategic decisions: structu
 ✅ **Successfully Launched for 200+ Students** – The platform handled live game sessions without any failures.  
 ✅ **Transformed a Failing Frontend into a Scalable System** – Ensuring usability, performance, and a polished UI.  
 ✅ **Delivered a Fully Functional Admin Panel** – Allowing easy game management for future events.  
+✅ **Fully Hosted & Deployed** – Secured a **custom domain**, set up **VPS hosting**, and configured **reverse proxy** for optimized traffic management.
 
 ---
 
@@ -56,6 +62,7 @@ TechTornadoV2 wasn’t just about writing code—it was about **delivering under
 - When the backend needed real-time capabilities, I engineered a scalable **socket-based architecture**.
 - When the frontend fell short, I took ownership and **rebuilt it for production-grade usability**.
 - When time was against us, I maximized efficiency through **strategic planning and execution**.
+- When deployment became a bottleneck, I took responsibility for **domain registration, VPS setup, and reverse proxy configuration** to ensure smooth hosting.
 
 The end result? A high-quality game platform that exceeded expectations, ensuring a seamless experience for over 200 students. If you need a developer who **solves problems, delivers under tight deadlines, and builds scalable systems**, let’s connect.
 
@@ -63,4 +70,3 @@ The end result? A high-quality game platform that exceeded expectations, ensurin
 
 ## **Contact**
 For inquiries or collaboration, feel free to reach out via GitHub or email.
-
