@@ -54,6 +54,12 @@ export default function RegisterPage() {
         return;
       }
 
+      if (!formData.memberTwo.trim()) {
+        toast.error("Where is your second team member? you got ditched?");
+        setIsLoading(false);
+        return;
+      }
+
       if (!formData.password) {
         toast.error("Password is required");
         setIsLoading(false);
