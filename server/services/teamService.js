@@ -33,7 +33,13 @@ const registerTeam = async (teamData) => {
     }
 
     // Validate required fields
-    const requiredFields = ["teamName", "collegeName", "memberOne", "password"];
+    const requiredFields = [
+      "teamName",
+      "collegeName",
+      "memberOne",
+      "memberTwo",
+      "password",
+    ];
     const missingFields = requiredFields.filter((field) => !teamData[field]);
     if (missingFields.length > 0) {
       throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
