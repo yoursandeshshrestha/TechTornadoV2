@@ -30,9 +30,7 @@ const registerValidation = [
 
   check("password")
     .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long")
-    .matches(/\d/)
-    .withMessage("Password must contain at least one number"),
+    .withMessage("Password must be at least 6 characters long"),
 
   check("memberOne")
     .isString()
@@ -46,6 +44,7 @@ const registerValidation = [
     .optional()
     .isString()
     .trim()
+    .notEmpty()
     .isLength({ min: 2, max: 50 })
     .withMessage("Member name must be between 2 and 50 characters"),
 ];
