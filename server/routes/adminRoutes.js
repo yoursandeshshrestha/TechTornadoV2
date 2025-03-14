@@ -25,7 +25,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 // Protected routes - require admin authentication
-router.get("/scores", authenticateAdmin, getScores);
+router.get("/scores", getScores);
 
 // Question Related Routes
 router.post("/questions", authenticateAdmin, createQuestion);
