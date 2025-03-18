@@ -119,10 +119,7 @@ const QuestionManager = () => {
     }
   }, [activeRound, allQuestions]);
 
-  const handleAddQuestion = async (
-    newQuestion: NewQuestion,
-    files: { image?: File; pdf?: File }
-  ) => {
+  const handleAddQuestion = async (newQuestion: NewQuestion) => {
     const errors = validateQuestion(newQuestion, allQuestions);
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -130,34 +127,12 @@ const QuestionManager = () => {
     }
 
     try {
-      // Create FormData to handle both text fields and files
-      const formData = new FormData();
-
-      // Add all question data
-      formData.append("round", newQuestion.round.toString());
-      formData.append("questionNumber", newQuestion.questionNumber.toString());
-      formData.append("content", newQuestion.content);
-      formData.append("answer", newQuestion.answer);
-
-      // Add hints as JSON string
-      formData.append(
-        "hints",
-        JSON.stringify(newQuestion.hints.filter((hint) => hint.trim()))
-      );
-
-      // Add files if present
-      if (files.image) {
-        formData.append("image", files.image);
-      }
-
-      if (files.pdf) {
-        formData.append("pdf", files.pdf);
-      }
-
       const response = await fetchWithErrorHandling("/api/admin/questions", {
         method: "POST",
-        // Don't set Content-Type header - browser will set it with boundary for FormData
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newQuestion),
       });
 
       if (response.success) {
@@ -184,10 +159,7 @@ const QuestionManager = () => {
     }
   };
 
-  const handleEditQuestion = async (
-    editedQuestion: Question,
-    files: { image?: File; pdf?: File }
-  ) => {
+  const handleEditQuestion = async (editedQuestion: Question) => {
     const errors = validateQuestion(editedQuestion, allQuestions);
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -195,39 +167,14 @@ const QuestionManager = () => {
     }
 
     try {
-      // Create FormData to handle both text fields and files
-      const formData = new FormData();
-
-      // Add all question data
-      formData.append("round", editedQuestion.round.toString());
-      formData.append(
-        "questionNumber",
-        editedQuestion.questionNumber.toString()
-      );
-      formData.append("content", editedQuestion.content);
-      formData.append("answer", editedQuestion.answer);
-
-      // Add hints as JSON string
-      formData.append(
-        "hints",
-        JSON.stringify(editedQuestion.hints.filter((hint) => hint.trim()))
-      );
-
-      // Add files if present
-      if (files.image) {
-        formData.append("image", files.image);
-      }
-
-      if (files.pdf) {
-        formData.append("pdf", files.pdf);
-      }
-
       const response = await fetchWithErrorHandling(
         `/api/admin/questions/${editedQuestion._id}`,
         {
           method: "PUT",
-          // Don't set Content-Type header - browser will set it with boundary for FormData
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editedQuestion),
         }
       );
 
