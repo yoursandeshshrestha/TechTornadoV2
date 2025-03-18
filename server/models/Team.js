@@ -20,6 +20,7 @@ const teamSchema = new mongoose.Schema(
     },
     memberTwo: {
       type: String,
+      required: true,
       trim: true,
     },
     password: {
