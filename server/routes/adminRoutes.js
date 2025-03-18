@@ -25,7 +25,9 @@ router.post("/register", register);
 router.post("/login", login);
 
 // Protected routes - require admin authentication
+// Chnage from require authentication to no authentication becuase this should be accessible to everyone
 router.get("/scores", getScores);
+
 
 // Question Related Routes
 router.post("/questions", authenticateAdmin, createQuestion);
