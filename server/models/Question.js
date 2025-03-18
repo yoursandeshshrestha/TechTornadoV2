@@ -26,24 +26,6 @@ const questionSchema = new mongoose.Schema(
     hints: {
       type: Array,
     },
-    media: {
-      image: {
-        url: {
-          type: String,
-        },
-        fileName: {
-          type: String,
-        },
-      },
-      pdf: {
-        url: {
-          type: String,
-        },
-        fileName: {
-          type: String,
-        },
-      },
-    },
   },
   {
     timestamps: true,
