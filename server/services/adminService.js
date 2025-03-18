@@ -22,8 +22,8 @@ const registerAdmin = async (username, password) => {
       );
     }
 
-    if (password.length < 8) {
-      throw new Error("Password must be at least 8 characters long");
+    if (password.length < 4) {
+      throw new Error("Password must be at least 4 characters long");
     }
 
     const existingAdmin = await Admin.findOne({
@@ -314,7 +314,7 @@ const getScores = async () => {
   }
 };
 
-const createQuestion = async (questionData, files) => {
+const createQuestion = async (questionData) => {
   try {
     // Validate required fields
     const requiredFields = ["round", "questionNumber", "content", "answer"];
@@ -370,65 +370,28 @@ const createQuestion = async (questionData, files) => {
 
     // Add hints if provided
     if (questionData.hints) {
-      try {
-        // Handle hints as JSON string or array
-        newQuestionData.hints = Array.isArray(questionData.hints)
-          ? questionData.hints
-          : JSON.parse(questionData.hints);
-      } catch (e) {
-        // If parsing fails, treat as a single hint
-        newQuestionData.hints = [questionData.hints];
-      }
-    }
-
-    // Handle media files if uploaded
-    if (files) {
-      newQuestionData.media = {};
-
-      // Handle image upload
-      if (files.image) {
-        const uploadDir = path.join(__dirname, "../uploads/images");
-
-        // Ensure directory exists
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
+      // Process hints based on what we receive
+      if (Array.isArray(questionData.hints)) {
+        // Filter out any empty hints
+        newQuestionData.hints = questionData.hints.filter(
+          (hint) => hint && typeof hint === "string" && hint.trim() !== ""
+        );
+      } else if (typeof questionData.hints === "string") {
+        try {
+          // Try to parse as JSON if it's a string that looks like JSON
+          if (questionData.hints.startsWith("[")) {
+            const parsedHints = JSON.parse(questionData.hints);
+            newQuestionData.hints = Array.isArray(parsedHints)
+              ? parsedHints.filter((hint) => hint && hint.trim() !== "")
+              : [questionData.hints];
+          } else {
+            // It's a single hint as a string
+            newQuestionData.hints = [questionData.hints];
+          }
+        } catch (e) {
+          // If parsing fails, treat as a single hint
+          newQuestionData.hints = [questionData.hints];
         }
-
-        // Create a unique filename
-        const fileName = `${Date.now()}-${files.image.name}`;
-        const filePath = path.join(uploadDir, fileName);
-
-        // Move file to upload directory
-        await files.image.mv(filePath);
-
-        // Save image data
-        newQuestionData.media.image = {
-          url: `/uploads/images/${fileName}`,
-          fileName: files.image.name,
-        };
-      }
-
-      // Handle PDF upload
-      if (files.pdf) {
-        const uploadDir = path.join(__dirname, "../uploads/pdfs");
-
-        // Ensure directory exists
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        // Create a unique filename
-        const fileName = `${Date.now()}-${files.pdf.name}`;
-        const filePath = path.join(uploadDir, fileName);
-
-        // Move file to upload directory
-        await files.pdf.mv(filePath);
-
-        // Save PDF data
-        newQuestionData.media.pdf = {
-          url: `/uploads/pdfs/${fileName}`,
-          fileName: files.pdf.name,
-        };
       }
     }
 
