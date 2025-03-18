@@ -40,11 +40,8 @@ const getScores = async (req, res) => {
 
 const createQuestion = async (req, res) => {
   try {
-    // Get files if they exist
-    const files = req.files || {};
-
-    // Call service to create question
-    const result = await adminService.createQuestion(req.body, files);
+    // Call service to create question with just the request body
+    const result = await adminService.createQuestion(req.body);
 
     if (!result.success) {
       const statusCode =
