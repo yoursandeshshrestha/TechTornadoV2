@@ -7,7 +7,7 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { getTokenFromCookie, removeTokenCookie } from "@/utils/auth";
 import { Toaster, toast } from "sonner";
 
-// Import component parts - remove the RoundNotActiveScreen import
+// Import component parts
 import { LoadingScreen, ResultsScreen } from "./GameScreens";
 
 // Import common RoundNotActiveScreen
@@ -38,6 +38,8 @@ const AICharades: React.FC = () => {
   const [roundActive, setRoundActive] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [currentRound, setCurrentRound] = useState<number>(0);
+  const [allQuestionsAnswered, setAllQuestionsAnswered] =
+    useState<boolean>(false);
 
   // Fetch the round status and time remaining
   useEffect(() => {
@@ -179,13 +181,28 @@ const AICharades: React.FC = () => {
             );
             setScore(totalPoints);
 
-            // Find the first unanswered question
-            const firstUnansweredIndex = transformedQuestions.findIndex(
-              (q) => !q.isAnswered
-            );
+            // Check if all questions are answered
+            const allAnswered = transformedQuestions.every((q) => q.isAnswered);
+            setAllQuestionsAnswered(allAnswered);
 
-            if (firstUnansweredIndex !== -1) {
-              setCurrentQuestionIndex(firstUnansweredIndex);
+            // If all questions are answered, show results
+            if (allAnswered && roundActive) {
+              setShowResults(true);
+              setRoundActive(false);
+              toast.success("All questions answered correctly!");
+              // Redirect to home after 3 seconds
+              setTimeout(() => {
+                router.push("/");
+              }, 3000);
+            } else {
+              // Find the first unanswered question
+              const firstUnansweredIndex = transformedQuestions.findIndex(
+                (q) => !q.isAnswered
+              );
+
+              if (firstUnansweredIndex !== -1) {
+                setCurrentQuestionIndex(firstUnansweredIndex);
+              }
             }
 
             setQuestions(transformedQuestions);
@@ -339,43 +356,61 @@ const AICharades: React.FC = () => {
         const pointsEarned = data.data.pointsEarned;
 
         // Update questions state to mark this as answered
-        setQuestions((prev) =>
-          prev.map((q) =>
+        setQuestions((prev) => {
+          const updatedQuestions = prev.map((q) =>
             q.id === currentQuestion.id
               ? { ...q, isAnswered: true, points: pointsEarned }
               : q
-          )
-        );
+          );
+
+          // Check if all questions are now answered
+          const allAnswered = updatedQuestions.every((q) => q.isAnswered);
+          if (allAnswered) {
+            setAllQuestionsAnswered(true);
+            // Show results and redirect to home after delay
+            setTimeout(() => {
+              setShowResults(true);
+              toast.success("All questions answered correctly!");
+              setTimeout(() => {
+                router.push("/");
+              }, 3000);
+            }, 2000);
+          }
+
+          return updatedQuestions;
+        });
 
         setScore((prev) => prev + pointsEarned);
         setFeedbackMessage(`Correct! +${pointsEarned} points`);
 
-        // Move to next question after 2 seconds
+        // Move to next question after 2 seconds if not all questions are answered
         setTimeout(() => {
-          const nextQuestionNum = data.data?.nextQuestion;
+          if (!allQuestionsAnswered) {
+            const nextQuestionNum = data.data?.nextQuestion;
 
-          // First try to find the question with the nextQuestion ID
-          const nextQuestionIndex = questions.findIndex(
-            (q) => q.id === nextQuestionNum
-          );
-
-          if (
-            nextQuestionIndex !== -1 &&
-            nextQuestionIndex < questions.length
-          ) {
-            setCurrentQuestionIndex(nextQuestionIndex);
-            resetState();
-          } else {
-            // If that fails, try to find any unanswered question
-            const anyUnansweredIndex = questions.findIndex(
-              (q) => !q.isAnswered
+            // First try to find the question with the nextQuestion ID
+            const nextQuestionIndex = questions.findIndex(
+              (q) => q.id === nextQuestionNum
             );
-            if (anyUnansweredIndex !== -1) {
-              setCurrentQuestionIndex(anyUnansweredIndex);
+
+            if (
+              nextQuestionIndex !== -1 &&
+              nextQuestionIndex < questions.length
+            ) {
+              setCurrentQuestionIndex(nextQuestionIndex);
               resetState();
             } else {
-              // All questions completed
-              setFeedbackMessage("All challenges completed!");
+              // If that fails, try to find any unanswered question
+              const anyUnansweredIndex = questions.findIndex(
+                (q) => !q.isAnswered
+              );
+              if (anyUnansweredIndex !== -1) {
+                setCurrentQuestionIndex(anyUnansweredIndex);
+                resetState();
+              } else {
+                // All questions completed
+                setFeedbackMessage("All challenges completed!");
+              }
             }
           }
         }, 2000);
@@ -430,6 +465,16 @@ const AICharades: React.FC = () => {
   // Render appropriate screen based on game state
   if (isLoading) {
     return <LoadingScreen />;
+  }
+
+  if (allQuestionsAnswered && !showResults) {
+    return (
+      <RoundNotActiveScreen
+        onClick={goBackToDashboard}
+        round={currentRound}
+        isCompleted={true}
+      />
+    );
   }
 
   if (!roundActive && !showResults) {
