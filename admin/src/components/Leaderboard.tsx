@@ -7,6 +7,8 @@ interface Team {
   totalScore: number;
   teamMembers: string[];
   collegeName?: string;
+  scoreUpdatedAt?: string; // General timestamp tracking
+  scoreHistory?: { [score: number]: string }; // Tracks timestamp when each score level was reached
 }
 
 export function Leaderboard() {
@@ -18,34 +20,163 @@ export function Leaderboard() {
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
 
-  // Handle individual score updates
-  const handleScoreUpdate = useCallback((data: Team) => {
-    console.log("Score update received:", data);
-    setTeams((currentTeams) => {
-      // Create a new array with the updated team
-      const updatedTeams = currentTeams.map((team) =>
-        team.teamName === data.teamName ? { ...team, ...data } : team
-      );
-
-      // If the team isn't in the list, add it
-      if (!updatedTeams.find((t) => t.teamName === data.teamName)) {
-        updatedTeams.push(data);
+  // Sort teams with tiebreaking by timestamp at each score level
+  const sortTeams = useCallback((teamsToSort: Team[]) => {
+    return [...teamsToSort].sort((a, b) => {
+      // First sort by score (highest first)
+      if (b.totalScore !== a.totalScore) {
+        return b.totalScore - a.totalScore;
       }
 
-      // Sort by score and take top 10
-      return updatedTeams
-        .sort((a, b) => b.totalScore - a.totalScore)
-        .slice(0, 10);
+      // Current score that we're comparing
+      const currentScore = a.totalScore;
+
+      // If scores are equal, check when each team reached THIS specific score
+      if (a.scoreHistory?.[currentScore] && b.scoreHistory?.[currentScore]) {
+        return (
+          new Date(a.scoreHistory[currentScore]).getTime() -
+          new Date(b.scoreHistory[currentScore]).getTime()
+        );
+      }
+
+      // If score history not available, fall back to general timestamp
+      if (a.scoreUpdatedAt && b.scoreUpdatedAt) {
+        return (
+          new Date(a.scoreUpdatedAt).getTime() -
+          new Date(b.scoreUpdatedAt).getTime()
+        );
+      }
+
+      // Fallback to alphabetical sorting if timestamps aren't available
+      return a.teamName.localeCompare(b.teamName);
     });
   }, []);
 
+  // Handle individual score updates
+  const handleScoreUpdate = useCallback(
+    (data: Team) => {
+      console.log("Score update received:", data);
+      setTeams((currentTeams) => {
+        // Find the existing team if any
+        const existingTeam = currentTeams.find(
+          (t) => t.teamName === data.teamName
+        );
+
+        let updatedTeam = { ...data };
+        const currentTimestamp = new Date().toISOString();
+
+        // Initialize or copy scoreHistory
+        updatedTeam.scoreHistory =
+          existingTeam?.scoreHistory || ({} as { [score: number]: string });
+
+        // New team or score increased scenario
+        if (!existingTeam) {
+          // New team, set current timestamp
+          updatedTeam.scoreUpdatedAt = currentTimestamp;
+
+          // Record timestamp for the current score
+          updatedTeam.scoreHistory[data.totalScore] = currentTimestamp;
+        } else if (data.totalScore > existingTeam.totalScore) {
+          // Score increased, update general timestamp
+          updatedTeam.scoreUpdatedAt = currentTimestamp;
+
+          // Record timestamp for each score level from previous max to current
+          // This ensures we have timestamps for all score levels the team achieved
+          for (
+            let score = existingTeam.totalScore + 1;
+            score <= data.totalScore;
+            score++
+          ) {
+            updatedTeam.scoreHistory[score] = currentTimestamp;
+          }
+        } else {
+          // Score didn't increase, keep the existing timestamps
+          updatedTeam.scoreUpdatedAt = existingTeam.scoreUpdatedAt;
+        }
+
+        console.log(
+          `Team ${data.teamName} score history:`,
+          updatedTeam.scoreHistory
+        );
+
+        // Create a new array with the updated team
+        const updatedTeams = currentTeams.map((team) =>
+          team.teamName === data.teamName ? { ...team, ...updatedTeam } : team
+        );
+
+        // If the team isn't in the list, add it
+        if (!updatedTeams.find((t) => t.teamName === data.teamName)) {
+          updatedTeams.push(updatedTeam);
+        }
+
+        // Sort with tiebreaking and take top 10
+        return sortTeams(updatedTeams).slice(0, 10);
+      });
+    },
+    [sortTeams]
+  );
+
   // Handle full leaderboard updates
-  const handleLeaderboardUpdate = useCallback((data: Team[]) => {
-    console.log("Leaderboard update received:", data);
-    if (Array.isArray(data)) {
-      setTeams(data.sort((a, b) => b.totalScore - a.totalScore).slice(0, 10));
-    }
-  }, []);
+  const handleLeaderboardUpdate = useCallback(
+    (data: Team[]) => {
+      console.log("Leaderboard update received:", data);
+      if (Array.isArray(data)) {
+        // Get current teams for reference to preserve score history
+        setTeams((currentTeams) => {
+          const currentTimestamp = new Date().toISOString();
+
+          // Merge incoming data with existing team data to preserve score history
+          const updatedData = data.map((newTeam) => {
+            const existingTeam = currentTeams.find(
+              (t) => t.teamName === newTeam.teamName
+            );
+
+            // If we already have this team, preserve its score history
+            if (existingTeam) {
+              const scoreHistory =
+                existingTeam.scoreHistory ||
+                ({} as { [score: number]: string });
+
+              // If the score has changed, record a timestamp for the new score
+              if (newTeam.totalScore > existingTeam.totalScore) {
+                // Record timestamps for any new score levels
+                for (
+                  let score = existingTeam.totalScore + 1;
+                  score <= newTeam.totalScore;
+                  score++
+                ) {
+                  scoreHistory[score] = currentTimestamp;
+                }
+              }
+
+              return {
+                ...newTeam,
+                scoreUpdatedAt:
+                  newTeam.scoreUpdatedAt ||
+                  existingTeam.scoreUpdatedAt ||
+                  currentTimestamp,
+                scoreHistory,
+              };
+            }
+
+            // For new teams, initialize score history
+            const scoreHistory: { [score: number]: string } = {};
+            scoreHistory[newTeam.totalScore] = currentTimestamp;
+
+            return {
+              ...newTeam,
+              scoreUpdatedAt: newTeam.scoreUpdatedAt || currentTimestamp,
+              scoreHistory,
+            };
+          });
+
+          // Sort with tiebreaking and take top 10
+          return sortTeams(updatedData).slice(0, 10);
+        });
+      }
+    },
+    [sortTeams]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -156,6 +287,9 @@ export function Leaderboard() {
                 <th className="py-4 text-right text-gray-500 font-medium">
                   Score
                 </th>
+                <th className="py-4 text-right text-gray-500 font-medium">
+                  Last Updated
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -220,6 +354,25 @@ export function Leaderboard() {
                     >
                       {team.totalScore}
                     </span>
+                  </td>
+                  <td className="py-4 text-right text-gray-500 text-sm">
+                    {team.scoreHistory && team.scoreHistory[team.totalScore]
+                      ? new Date(
+                          team.scoreHistory[team.totalScore]
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: true,
+                        })
+                      : team.scoreUpdatedAt
+                      ? new Date(team.scoreUpdatedAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: true,
+                        })
+                      : "-"}
                   </td>
                 </tr>
               ))}
