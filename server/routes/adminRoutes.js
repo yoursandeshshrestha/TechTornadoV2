@@ -28,7 +28,6 @@ router.post("/login", login);
 // Chnage from require authentication to no authentication becuase this should be accessible to everyone
 router.get("/scores", getScores);
 
-
 // Question Related Routes
 router.post("/questions", authenticateAdmin, createQuestion);
 router.get("/questions", authenticateAdmin, getAllQuestions);

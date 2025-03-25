@@ -62,6 +62,7 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
 
     let isCorrect = false;
     let pointsEarned = 0;
+    let currentTotalScore = team.totalScore; // Store current score for comparison
 
     // Special handling for round 3
     if (roundNumber === 3) {
@@ -94,6 +95,7 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
               [`scores.round3.challenge${challengeNumber}`]: pointsEarned,
             },
             $push: { "answeredQuestions.round3": questionNumber },
+            $set: { scoreUpdatedAt: new Date() }, // Update the timestamp
           }
         );
       }
@@ -106,7 +108,10 @@ const submitAnswer = async (teamId, roundNumber, questionNumber, answer) => {
           { _id: teamId },
           {
             $inc: { [`scores.round${roundNumber}`]: pointsEarned },
-            $set: { [`currentQuestion.round${roundNumber}`]: questionNumber },
+            $set: {
+              [`currentQuestion.round${roundNumber}`]: questionNumber,
+              scoreUpdatedAt: new Date(), // Update the timestamp
+            },
             $push: {
               [`answeredQuestions.round${roundNumber}`]: questionNumber,
             },
@@ -239,6 +244,7 @@ const skipQuestion = async (teamId, roundNumber, questionNumber) => {
 // Update leaderboard
 const updateLeaderboard = async () => {
   try {
+    // Fetch all teams
     const teams = await Team.find(
       {},
       {
@@ -246,26 +252,39 @@ const updateLeaderboard = async () => {
         scores: 1,
         memberOne: 1,
         memberTwo: 1,
-        collegeName: 1, // Added collegeName to projection
+        collegeName: 1,
+        scoreUpdatedAt: 1, // Include the timestamp field
       }
-    )
-      .sort({
-        "scores.total": -1,
-      })
-      .limit(10);
+    );
 
-    const leaderboardData = teams.map((team) => ({
-      teamName: team.teamName,
-      collegeName: team.collegeName, // Added collegeName to the output
-      totalScore:
+    // Calculate total scores and prepare data
+    const leaderboardData = teams.map((team) => {
+      const totalScore =
         team.scores.round1 +
         team.scores.round2 +
         team.scores.round3.challenge1 +
-        team.scores.round3.challenge2,
-      teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
-    }));
+        team.scores.round3.challenge2;
 
-    return leaderboardData;
+      return {
+        teamName: team.teamName,
+        collegeName: team.collegeName,
+        totalScore: totalScore,
+        teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
+        scoreUpdatedAt: team.scoreUpdatedAt || team.createdAt, // Fallback to createdAt if scoreUpdatedAt is not available
+      };
+    });
+
+    // Custom sort: first by score (descending), then by timestamp (ascending)
+    leaderboardData.sort((a, b) => {
+      if (b.totalScore !== a.totalScore) {
+        return b.totalScore - a.totalScore; // Higher score first
+      }
+      // If scores are equal, team that reached the score first gets priority
+      return new Date(a.scoreUpdatedAt) - new Date(b.scoreUpdatedAt);
+    });
+
+    // Return top 10
+    return leaderboardData.slice(0, 10);
   } catch (error) {
     logger.error("Error updating leaderboard:", error);
     throw error;
