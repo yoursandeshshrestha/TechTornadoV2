@@ -251,7 +251,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
               {editedQuestion.hints.length === 0 && (
                 <div className="text-center py-4 text-gray-500 text-sm">
-                  No hints added yet. Click "Add Hint" to add one.
+                  No hints added yet. Click &ldquo;Add Hint&ldquo; to add one.
                 </div>
               )}
             </div>
