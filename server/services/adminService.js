@@ -211,6 +211,18 @@ const startRound = async (round) => {
     const duration = getRoundDuration(round);
     const endTime = new Date(Date.now() + duration);
 
+    // Clear any existing timeout
+    const currentState = await GameState.findOne({});
+    if (currentState && currentState.timeoutId) {
+      clearTimeout(currentState.timeoutId);
+    }
+
+    // Set new timeout and store its ID
+    const timeoutId = setTimeout(async () => {
+      await endRound(round);
+    }, duration);
+
+    // Store timeout ID in database for recovery purposes
     const gameState = await GameState.findOneAndUpdate(
       {},
       {
@@ -219,6 +231,7 @@ const startRound = async (round) => {
         roundStartTime: new Date(),
         roundEndTime: endTime,
         isPaused: false,
+        timeoutId: timeoutId.toString(), // Store as string since timeoutId is just for tracking
       },
       { upsert: true, new: true }
     );
@@ -228,18 +241,13 @@ const startRound = async (round) => {
     io.emit("gameStateUpdate", {
       currentRound: round,
       gameStatus: "In Progress",
-      endTime: endTime.toISOString(), // Format endTime as ISO string
+      endTime: endTime.toISOString(),
     });
 
     io.emit("roundChange", {
       round,
       endTime: endTime.toISOString(),
     });
-
-    // Schedule round end
-    setTimeout(async () => {
-      await endRound(round);
-    }, duration);
 
     return {
       message: `Round ${round} started`,
@@ -253,8 +261,11 @@ const startRound = async (round) => {
   }
 };
 
-const endRound = async () => {
+// Include the round parameter in endRound function
+const endRound = async (round) => {
   try {
+    console.log(`Ending round ${round}`);
+
     await GameState.updateOne(
       {},
       {
@@ -263,6 +274,7 @@ const endRound = async () => {
         roundStartTime: null,
         roundEndTime: null,
         isPaused: false,
+        timeoutId: null, // Clear the timeout ID
       }
     );
 
@@ -283,10 +295,48 @@ const endRound = async () => {
       logger.error("Error updating leaderboard after round end:", error);
     }
   } catch (error) {
-    logger.error("Error ending round:", error);
+    logger.error(`Error ending round ${round}:`, error);
     throw new Error("Failed to end round: " + error.message);
   }
 };
+
+// Add a recovery mechanism to check for active games on server start
+// const recoverGameState = async () => {
+//   try {
+//     const gameState = await GameState.findOne({});
+
+//     if (gameState && gameState.isGameActive && gameState.roundEndTime) {
+//       const now = new Date();
+//       const endTime = new Date(gameState.roundEndTime);
+
+//       // If the round should still be running
+//       if (endTime > now) {
+//         const remainingTime = endTime.getTime() - now.getTime();
+//         const round = gameState.currentRound;
+
+//         console.log(`Recovering round ${round}, ${remainingTime}ms remaining`);
+
+//         // Set a new timeout for the remaining time
+//         const timeoutId = setTimeout(async () => {
+//           await endRound(round);
+//         }, remainingTime);
+
+//         // Update the timeoutId in the database
+//         await GameState.updateOne(
+//           { _id: gameState._id },
+//           { timeoutId: timeoutId.toString() }
+//         );
+//       }
+//       // If the round should have ended already
+//       else {
+//         console.log("Found stale game state, ending round");
+//         await endRound(gameState.currentRound);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error recovering game state:", error);
+//   }
+// };
 
 const getScores = async () => {
   try {
