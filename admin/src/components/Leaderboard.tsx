@@ -62,7 +62,7 @@ export function Leaderboard() {
           (t) => t.teamName === data.teamName
         );
 
-        let updatedTeam = { ...data };
+        const updatedTeam = { ...data };
         const currentTimestamp = new Date().toISOString();
 
         // Initialize or copy scoreHistory
