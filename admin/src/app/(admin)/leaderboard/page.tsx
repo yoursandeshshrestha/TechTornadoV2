@@ -62,27 +62,27 @@ export default function LeaderboardPage() {
     });
   }, []);
 
-  const updateTeams = useCallback(
-    (newTeams: Team[]) => {
-      const validTeams = newTeams.map((team) => ({
-        teamName: team.teamName || "",
-        totalScore: typeof team.totalScore === "number" ? team.totalScore : 0,
-        teamMembers: Array.isArray(team.teamMembers) ? team.teamMembers : [],
-        collegeName: team.collegeName || "",
-        scoreUpdatedAt: team.scoreUpdatedAt || new Date().toISOString(),
-        scoreHistory:
-          team.scoreHistory ||
-          ({
-            [team.totalScore]: team.scoreUpdatedAt || new Date().toISOString(),
-          } as { [score: number]: string }),
-      }));
+  // const updateTeams = useCallback(
+  //   (newTeams: Team[]) => {
+  //     const validTeams = newTeams.map((team) => ({
+  //       teamName: team.teamName || "",
+  //       totalScore: typeof team.totalScore === "number" ? team.totalScore : 0,
+  //       teamMembers: Array.isArray(team.teamMembers) ? team.teamMembers : [],
+  //       collegeName: team.collegeName || "",
+  //       scoreUpdatedAt: team.scoreUpdatedAt || new Date().toISOString(),
+  //       scoreHistory:
+  //         team.scoreHistory ||
+  //         ({
+  //           [team.totalScore]: team.scoreUpdatedAt || new Date().toISOString(),
+  //         } as { [score: number]: string }),
+  //     }));
 
-      // Apply our custom sorting in the frontend
-      const sortedTeams = sortTeams(validTeams);
-      setTeams(sortedTeams.slice(0, 10));
-    },
-    [sortTeams]
-  );
+  //     // Apply our custom sorting in the frontend
+  //     const sortedTeams = sortTeams(validTeams);
+  //     setTeams(sortedTeams.slice(0, 10));
+  //   },
+  //   [sortTeams]
+  // );
 
   const handleLeaderboardUpdate = useCallback(
     (leaderboardData: LeaderboardData | Team[]) => {
