@@ -55,17 +55,20 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
+    const challengePrefixes = [
+      "pdf-challenge-",
+      "simple-challenge-",
+      "terminal-challenge-",
+      "pattern-challenge-",
+      "word-scramble-challenge-",
+    ];
+
     Object.keys(localStorage).forEach((key) => {
-      if (
-        key.includes("pdf-challenge-") ||
-        key.includes("simple-challenge-") ||
-        key.includes("terminal-challenge-") ||
-        key.includes("pattern-challenge-") ||
-        key.includes("word-scramble-challenge-")
-      ) {
+      if (challengePrefixes.some((prefix) => key.startsWith(prefix))) {
         localStorage.removeItem(key);
       }
     });
+
     logout();
     toast.success("Logged out successfully");
   };
