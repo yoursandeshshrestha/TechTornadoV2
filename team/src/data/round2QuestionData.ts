@@ -53,135 +53,212 @@ export type Challenge =
   | PatternChallenge
   | WordScrambleChallenge;
 
-// PDF-based challenges (1-3)
+// PDF-based challenges (1-6)
 export const pdfChallenges: PDFChallenge[] = [
   {
     id: 1,
-    title: "Crack The Password",
+    title: "Video Platform Puzzle",
     description:
-      "A famous search engine holds the key to unlocking this document. Can you figure out its name?",
-    hint: "I help people find answers on the internet. My name starts with 'G'. I am owned by Alphabet Inc.",
-    pdfUrl: "AI_Lockdown_Easy.pdf",
-    password: "Google",
-    secretMessage: "AIisTheFuture",
+      "Find the name of the popular video platform to unlock this document.",
+    hint: "Full of tutorials and music videos. Red and white logo. Owned by Google.",
+    pdfUrl: "AI_VisualWorld.pdf",
+    password: "YouTube",
+    secretMessage: "KnowledgeInMotion",
   },
   {
     id: 2,
-    title: "AI Breakthrough",
-    description:
-      "This PDF holds an important AI breakthrough, but it's locked! Can you recall the social media platform owned by Meta?",
-    hint: "I was created in 2004. I connect people worldwide. My logo is blue.",
-    pdfUrl: "Cyber_Secret_Case.pdf",
-    password: "Facebook",
-    secretMessage: "MetaAIUnlocked",
+    title: "AI Art Generator",
+    description: "Name the AI tool that can turn text into art.",
+    hint: "Name sounds like a famous painter. Developed by OpenAI. Visualizes words.",
+    pdfUrl: "PaintMyText.pdf",
+    password: "DALL·E",
+    secretMessage: "ArtByWords",
   },
   {
     id: 3,
-    title: "Video Call App",
-    description:
-      "The key to unlocking this document is a popular app used for video calls.",
-    hint: "I became famous during the pandemic. My name sounds like 'zooming in.' People use me for meetings and webinars.",
-    pdfUrl: "Codebreaker_Mystery.pdf",
-    password: "Zoom",
-    secretMessage: "VirtualSuccess",
+    title: "Scrambled Tech Term",
+    description: "Unscramble the word: IOTMNOR",
+    hint: "Relates to machines and automation. Found in factories and smart homes.",
+    pdfUrl: "ControlCenter.pdf",
+    password: "Monitor",
+    secretMessage: "SystemsUnderWatch",
   },
-];
-
-// Simple challenges (4-5)
-export const simpleChallenges: SimpleChallenge[] = [
   {
     id: 4,
-    title: "Step-Jump Pattern",
-    description:
-      "A hacker has scrambled a word using a step-jump pattern in the alphabet. Find the missing letter. B,F,K,?,V",
-    hint: "The difference between letters follows a unique step pattern. Observe the gaps: B→+4→F→+5→K→+6→?→+7→V.",
-    answer: "Q",
+    title: "AI Logic Riddle",
+    description: "Solve the riddle to unlock this document.",
+    hint: "I am a number. When multiplied by 2, then added to 8, the result is 30.",
+    pdfUrl: "AI_LogicLock.pdf",
+    password: "11",
+    secretMessage: "BrainsOverBots",
   },
   {
     id: 5,
-    title: "Common Connection",
-    description:
-      "You are given three words that seem unrelated, but they all have something in common. Find the one-word answer that connects them: Machine, Translate, Intelligence",
-    hint: "Think about technology! It is a field that helps computers 'think' like humans.",
-    answer: "AI",
+    title: "Pattern Sequence Puzzle",
+    description: "Crack the pattern to unlock the document.",
+    hint: "Pattern of increasing letter gaps: +2, +3, +4, +5, +6",
+    pdfUrl: "SecretPattern.pdf",
+    password: "W",
+    secretMessage: "ThinkLikeCode",
+  },
+  {
+    id: 6,
+    title: "Music App Mystery",
+    description: "Identify the music streaming app with a green logo.",
+    hint: "Known for music streaming and year-end stats. Green logo.",
+    pdfUrl: "WrappedBeats.pdf",
+    password: "Spotify",
+    secretMessage: "RhythmUnlocked",
   },
 ];
 
-// Terminal-based challenges (6-8)
+// Terminal-based challenges (7-12)
 export const terminalChallenges: TerminalChallenge[] = [
   {
-    id: 6,
-    title: "AI Research Message",
-    description:
-      "A hacker has locked an important AI research message inside a program. The only way to reveal the secret is to enter the correct password into the terminal.",
-    hints: [
-      "Even number one less than 10.",
-      "Google's AI assistant.",
-      "The Roman numeral for 10.",
-    ],
-    password: "8GoogleX",
-    secretMessage: "ArtificialIntelligenceWillRule",
-    fileName: "ai_research.c",
-  },
-  {
     id: 7,
-    title: "Encrypted Message",
-    description:
-      "A cybersecurity researcher has encrypted a message that contains a secret phrase. To access it, you must crack the password and enter it into the program.",
+    title: "Drone AI Command",
+    description: "Crack the password to activate the drone AI command.",
     hints: [
-      "Turn an infinity symbol upright.",
-      "The voice assistant that starts with 'A'.",
-      "The first letter in the Greek alphabet.",
+      "Square root of 49",
+      "Apple’s voice assistant",
+      "Roman numeral for 5",
     ],
-    password: "8AlexaAlpha",
-    secretMessage: "CyberSecurityIsTheFuture",
-    fileName: "encrypted_message.c",
+    password: "7SiriV",
+    secretMessage: "SkySurveillanceActive",
+    fileName: "drone_AI_command.c",
   },
   {
     id: 8,
-    title: "Enigma Machine",
-    description:
-      "The Enigma machine has encrypted a classified message. The only way to decrypt it is by running the given C program and entering the correct password.",
+    title: "Meta Lab Protocol",
+    description: "Unlock the meta lab protocol by solving the hints.",
     hints: [
-      "The number of planets in the solar system.",
-      "Apple's digital assistant.",
-      "The first letter in 'Coding'.",
+      "Number of continents",
+      "Microsoft’s AI assistant",
+      "Roman numeral for 1000",
     ],
-    password: "8SiriC",
-    secretMessage: "EnigmaDecodedSuccess",
-    fileName: "enigma_decoder.c",
+    password: "7CopilotM",
+    secretMessage: "InnovationNeverStops",
+    fileName: "meta_lab_protocol.c",
+  },
+  {
+    id: 9,
+    title: "Autopilot Activation",
+    description: "Activate autopilot mode by entering the correct password.",
+    hints: [
+      "Cube number less than 30",
+      "Tesla’s AI system",
+      "Roman numeral for 1",
+    ],
+    password: "8AutopilotI",
+    secretMessage: "AutonomousModeEngaged",
+    fileName: "autopilot_activation.c",
+  },
+  {
+    id: 10,
+    title: "VR Access Gateway",
+    description: "Unlock the VR access gateway.",
+    hints: ["Half of 10", "Meta’s VR platform", "Roman numeral for 50"],
+    password: "5HorizonL",
+    secretMessage: "EnteringVirtualWorld",
+    fileName: "VR_Access_Gateway.c",
+  },
+  {
+    id: 11,
+    title: "Deepfake Detector",
+    description: "Enable the deepfake detector by cracking the password.",
+    hints: [
+      "First single-digit even number",
+      "AI that creates images from text (starts with D)",
+      "Roman numeral for 100",
+    ],
+    password: "2DALLEC",
+    secretMessage: "DeepfakeDefenseOnline",
+    fileName: "deepfake_detector.c",
+  },
+  {
+    id: 12,
+    title: "Language Model Init",
+    description: "Initialize the language model with the correct password.",
+    hints: [
+      "Number of fingers on one hand",
+      "AI chatbot from OpenAI",
+      "Roman numeral for 10",
+    ],
+    password: "5ChatGPTX",
+    secretMessage: "TalkTechActivated",
+    fileName: "language_model_init.c",
   },
 ];
 
-// Pattern challenge (9)
-export const patternChallenge: PatternChallenge = {
-  id: 9,
-  title: "Digital Maze",
-  description:
-    "You find yourself in a digital maze with four paths. The exit door requires a 2-digit code to open.",
-  hint: "The numbers follow a pattern. Find the next number in the sequence.",
-  paths: [3, 6, 12, 24],
-  answer: "48",
-};
+// Simple challenges (13-20)
+export const simpleChallenges: SimpleChallenge[] = [
+  {
+    id: 13,
+    title: "Sequence Puzzle",
+    description: "What comes next in the sequence: 2 → 6 → 18 → 54 → ?",
+    hint: "Multiply each by 3.",
+    answer: "162",
+  },
+  {
+    id: 14,
+    title: "Unscramble Puzzle",
+    description: "Unscramble: XEALA",
+    hint: "Amazon's assistant.",
+    answer: "Alexa",
+  },
+  {
+    id: 15,
+    title: "Pattern Puzzle",
+    description: "Sequence: G → J → N → S → ?",
+    hint: "Pattern: +3, +4, +5, +6",
+    answer: "Y",
+  },
+  {
+    id: 16,
+    title: "Word Connect",
+    description: "Echo, Alexa, Siri — what connects them?",
+    hint: "Think of their common role.",
+    answer: "Assistant",
+  },
+  {
+    id: 17,
+    title: "Common Link",
+    description: "Tesla, EV, Charger — what's the link?",
+    hint: "All powered by?",
+    answer: "Electric",
+  },
+  {
+    id: 18,
+    title: "Missing Letter Puzzle",
+    description: "A, C, F, J, O, ?",
+    hint: "Gaps increase: +2, +3, +4, +5",
+    answer: "U",
+  },
+  {
+    id: 19,
+    title: "T9 Pattern Puzzle",
+    description: "J, L, O, S, ?",
+    hint: "Letters by mobile keypad numbers.",
+    answer: "Z",
+  },
+  {
+    id: 20,
+    title: "One-Word Answer",
+    description: "GPT but not from OpenAI. Writes emails, stories, blogs...",
+    hint: "Starts with W, ends with e.",
+    answer: "Write",
+  },
+];
 
-// Word scramble challenge (10)
-export const wordScrambleChallenge: WordScrambleChallenge = {
-  id: 10,
-  title: "Final Gate",
-  description:
-    "At the final gate, a screen displays a scrambled word. You must enter the correct 8-letter word to unlock the door.",
-  hint: "Think about technology and work.",
-  scrambledLetters: ["R", "O", "T", "O", "C", "U", "P", "M", "E"],
-  answer: "COMPUTER",
-};
+// Pattern challenge (already covered in simple sequence now, skipping to avoid duplication)
+
+// Word scramble challenge (if needed you can add extra)
 
 // All challenges in order
 export const allChallenges: Challenge[] = [
   ...pdfChallenges,
-  ...simpleChallenges,
   ...terminalChallenges,
-  patternChallenge,
-  wordScrambleChallenge,
+  ...simpleChallenges,
 ];
 
 // Get challenge by ID
