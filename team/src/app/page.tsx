@@ -55,6 +55,17 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (
+        key.includes("pdf-challenge-") ||
+        key.includes("simple-challenge-") ||
+        key.includes("terminal-challenge-") ||
+        key.includes("pattern-challenge-") ||
+        key.includes("word-scramble-challenge-")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
     logout();
     toast.success("Logged out successfully");
   };
