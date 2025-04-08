@@ -34,7 +34,6 @@ router.get("/questions", authenticateAdmin, getAllQuestions);
 router.get("/questions/round/:round", authenticateAdmin, getQuestionsByRound);
 router.put("/questions/:id", authenticateAdmin, updateQuestion);
 router.delete("/questions/:id", authenticateAdmin, deleteQuestion);
-router.post("/questions/bulk", authenticateAdmin, createBulkQuestions);
 
 // Round Related
 router.post("/round/start", authenticateAdmin, startRound);
