@@ -46,7 +46,6 @@ const getCurrentGameState = async () => {
 // Helper function to broadcast current game state
 const broadcastGameState = async () => {
   if (!io) return;
-
   try {
     const currentState = await getCurrentGameState();
     io.emit("gameStateUpdate", currentState);
@@ -56,7 +55,6 @@ const broadcastGameState = async () => {
   }
 };
 
-// Update leaderboard with preserved game state
 const updateLeaderboard = async () => {
   try {
     const teams = await Team.find(
