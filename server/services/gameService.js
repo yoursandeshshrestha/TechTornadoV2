@@ -257,18 +257,29 @@ const updateLeaderboard = async () => {
       }
     );
 
-    // Calculate total scores and prepare data
+    // Calculate total scores and prepare data with round-wise scores
     const leaderboardData = teams.map((team) => {
-      const totalScore =
-        team.scores.round1 +
-        team.scores.round2 +
-        team.scores.round3.challenge1 +
-        team.scores.round3.challenge2;
+      // Calculate round3 total for convenience
+      const round3Total =
+        team.scores.round3.challenge1 + team.scores.round3.challenge2;
+
+      // Calculate total score
+      const totalScore = team.scores.round1 + team.scores.round2 + round3Total;
 
       return {
         teamName: team.teamName,
         collegeName: team.collegeName,
-        totalScore: totalScore,
+        // Include both detailed scores and total score
+        scores: {
+          round1: team.scores.round1,
+          round2: team.scores.round2,
+          round3: {
+            challenge1: team.scores.round3.challenge1,
+            challenge2: team.scores.round3.challenge2,
+            total: round3Total,
+          },
+        },
+        totalScore: totalScore, // Keep the totalScore field for backward compatibility
         teamMembers: [team.memberOne, team.memberTwo].filter(Boolean),
         scoreUpdatedAt: team.scoreUpdatedAt || team.createdAt, // Fallback to createdAt if scoreUpdatedAt is not available
       };
