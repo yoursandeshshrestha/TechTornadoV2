@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -13,13 +13,18 @@ import {
   Check,
   Hash,
 } from "lucide-react";
-import { PatternChallenge as PatternChallengeType } from "@/data/round2QuestionData";
 import GameHeader from "./GameHeader";
-import SuccessScreen from "./SuccessScreen";
 import { submitAnswer } from "@/utils/apiService";
 
 interface PatternChallengeProps {
-  challenge: PatternChallengeType;
+  challenge: {
+    id: number;
+    title: string;
+    description: string;
+    hint: string;
+    paths: number[];
+    answer: string;
+  };
   totalQuestions: number;
 }
 
@@ -36,10 +41,32 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // ✅ Check localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isCompleted =
+        localStorage.getItem(`pattern-challenge-${challenge.id}-completed`) ===
+        "true";
+
+      if (isCompleted) {
+        setSuccess(true);
+        setUserAnswer(
+          localStorage.getItem(`pattern-challenge-${challenge.id}-answer`) ||
+            challenge.answer
+        );
+        setPointsEarned(
+          Number(
+            localStorage.getItem(`pattern-challenge-${challenge.id}-points`)
+          ) || 0
+        );
+      }
+    }
+  }, [challenge.id, challenge.answer]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting) return;
+    if (isSubmitting || success) return;
     setIsSubmitting(true);
 
     try {
@@ -47,8 +74,24 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
 
       if (response.success && response.data) {
         if (response.data.isCorrect) {
-          setPointsEarned(response.data.pointsEarned);
+          const earnedPoints = response.data.pointsEarned;
+          setPointsEarned(earnedPoints);
           setSuccess(true);
+          setUserAnswer(challenge.answer);
+
+          // ✅ Save to localStorage
+          localStorage.setItem(
+            `pattern-challenge-${challenge.id}-completed`,
+            "true"
+          );
+          localStorage.setItem(
+            `pattern-challenge-${challenge.id}-answer`,
+            challenge.answer
+          );
+          localStorage.setItem(
+            `pattern-challenge-${challenge.id}-points`,
+            earnedPoints.toString()
+          );
         } else {
           setErrorMessage("Incorrect code. Try again.");
           setTimeout(() => setErrorMessage(""), 3000);
@@ -88,18 +131,6 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
     }
   };
 
-  if (success) {
-    return (
-      <SuccessScreen
-        title="DOOR UNLOCKED!"
-        message="You successfully cracked the code and escaped the digital maze."
-        currentQuestion={challenge.id}
-        totalQuestions={totalQuestions}
-        pointsEarned={pointsEarned}
-      />
-    );
-  }
-
   return (
     <div>
       <GameHeader
@@ -129,77 +160,36 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
             </div>
 
             {/* Paths */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                  selectedPath === challenge.paths[0]
-                    ? "bg-blue-600 border-2 border-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                onClick={() => handlePathSelect(challenge.paths[0])}
-              >
-                <span className="font-mono text-xl font-bold text-white">
-                  {challenge.paths[0]}
-                </span>
-              </div>
-              <div className="absolute -bottom-24 -left-12 text-blue-400 font-mono text-xs">
-                PATH 1
-              </div>
-            </div>
-
-            <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                  selectedPath === challenge.paths[1]
-                    ? "bg-blue-600 border-2 border-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                onClick={() => handlePathSelect(challenge.paths[1])}
-              >
-                <span className="font-mono text-xl font-bold text-white">
-                  {challenge.paths[1]}
-                </span>
-              </div>
-              <div className="absolute -bottom-24 -left-12 text-blue-400 font-mono text-xs">
-                PATH 2
-              </div>
-            </div>
-
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                  selectedPath === challenge.paths[2]
-                    ? "bg-blue-600 border-2 border-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                onClick={() => handlePathSelect(challenge.paths[2])}
-              >
-                <span className="font-mono text-xl font-bold text-white">
-                  {challenge.paths[2]}
-                </span>
-              </div>
-              <div className="absolute -bottom-24 -left-12 text-blue-400 font-mono text-xs">
-                PATH 3
-              </div>
-            </div>
-
-            <div className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2">
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                  selectedPath === challenge.paths[3]
-                    ? "bg-blue-600 border-2 border-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                onClick={() => handlePathSelect(challenge.paths[3])}
-              >
-                <span className="font-mono text-xl font-bold text-white">
-                  {challenge.paths[3]}
-                </span>
-              </div>
-              <div className="absolute -bottom-24 -left-12 text-blue-400 font-mono text-xs">
-                PATH 4
-              </div>
-            </div>
+            {challenge.paths.map((path, index) => {
+              const positionClasses = [
+                "top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+                "top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2",
+                "bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2",
+                "top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2",
+              ];
+              return (
+                <div
+                  key={index}
+                  className={`absolute ${positionClasses[index]}`}
+                >
+                  <div
+                    className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                      selectedPath === path
+                        ? "bg-blue-600 border-2 border-white"
+                        : "bg-gray-800 hover:bg-gray-700"
+                    }`}
+                    onClick={() => handlePathSelect(path)}
+                  >
+                    <span className="font-mono text-xl font-bold text-white">
+                      {path}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-24 -left-12 text-blue-400 font-mono text-xs">
+                    PATH {index + 1}
+                  </div>
+                </div>
+              );
+            })}
 
             {/* Connection lines */}
             <svg
@@ -289,21 +279,44 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
             </div>
           )}
 
+          {success && (
+            <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4 mb-6 text-green-300 flex items-start gap-2 animate-fade-in">
+              <Check className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div className="text-sm font-mono">
+                <p className="font-bold">CHALLENGE COMPLETED!</p>
+                <p>
+                  You successfully cracked the code and escaped the digital
+                  maze.
+                </p>
+                <p className="mt-2">Points earned: {pointsEarned}</p>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="mt-auto">
             <div className="space-y-4">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onChange={(e) => !success && setUserAnswer(e.target.value)}
                   placeholder="Enter 2-digit code..."
                   maxLength={2}
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-2xl text-blue-400 placeholder-gray-500 font-mono text-center tracking-widest shadow-inner"
+                  className={`flex-1 px-4 py-3 bg-gray-800 border ${
+                    success
+                      ? "border-green-500 text-green-400 cursor-not-allowed"
+                      : "border-gray-700 text-blue-400"
+                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-2xl placeholder-gray-500 font-mono text-center tracking-widest shadow-inner`}
+                  disabled={success}
+                  readOnly={success}
                 />
                 <button
                   type="button"
                   onClick={() => setShowHint(!showHint)}
-                  className="px-3 text-yellow-500 hover:bg-gray-800 rounded-lg transition-colors"
+                  className={`px-3 text-yellow-500 hover:bg-gray-800 rounded-lg transition-colors ${
+                    success ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={success}
                 >
                   <Lightbulb className="h-6 w-6" />
                 </button>
@@ -311,14 +324,28 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-blue-500/20 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
+                disabled={isSubmitting || success}
+                className={`w-full px-8 py-3 ${
+                  success
+                    ? "bg-gradient-to-r from-green-600 to-emerald-600"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                } text-white font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-blue-500/20 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed`}
               >
                 <span className="relative z-10 flex items-center justify-center font-mono">
-                  <Check className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-                  {isSubmitting ? "SUBMITTING..." : "UNLOCK DOOR"}
+                  {success ? (
+                    <>
+                      <Check className="h-5 w-5 mr-2" />
+                      CORRECT ANSWER!
+                    </>
+                  ) : isSubmitting ? (
+                    "SUBMITTING..."
+                  ) : (
+                    <>
+                      <Check className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+                      UNLOCK DOOR
+                    </>
+                  )}
                 </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-600/50 to-indigo-600/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               </button>
             </div>
           </form>
@@ -335,7 +362,11 @@ const PatternChallenge: React.FC<PatternChallengeProps> = ({
         </button>
         <button
           onClick={handleNext}
-          className="px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 text-white rounded-md transition-colors duration-300 flex items-center gap-2"
+          className={`px-4 py-2 ${
+            success
+              ? "bg-green-700/80 hover:bg-green-600/80"
+              : "bg-gray-800/80 hover:bg-gray-700/80"
+          } text-white rounded-md transition-colors duration-300 flex items-center gap-2`}
         >
           Next
           <ArrowRight className="h-4 w-4" />
