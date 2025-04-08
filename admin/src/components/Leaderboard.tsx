@@ -9,6 +9,15 @@ interface Team {
   collegeName?: string;
   scoreUpdatedAt?: string; // General timestamp tracking
   scoreHistory?: { [score: number]: string }; // Tracks timestamp when each score level was reached
+  scores?: {
+    round1: number;
+    round2: number;
+    round3: {
+      challenge1: number;
+      challenge2: number;
+      total: number;
+    };
+  };
 }
 
 export function Leaderboard() {
@@ -341,19 +350,29 @@ export function Leaderboard() {
                     {team.collegeName || "-"}
                   </td>
                   <td className="py-4 text-right">
-                    <span
-                      className={`font-bold text-2xl ${
-                        index === 0
-                          ? "text-yellow-600"
-                          : index === 1
-                          ? "text-gray-600"
-                          : index === 2
-                          ? "text-orange-600"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      {team.totalScore}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span
+                        className={`font-bold text-2xl ${
+                          index === 0
+                            ? "text-yellow-600"
+                            : index === 1
+                            ? "text-gray-600"
+                            : index === 2
+                            ? "text-orange-600"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {team.totalScore}
+                      </span>
+                      {team.scores && (
+                        <span className="text-xs text-gray-500 mt-1">
+                          R1: {team.scores.round1} | R2: {team.scores.round2} |
+                          R3:{" "}
+                          {team.scores.round3.challenge1 +
+                            team.scores.round3.challenge2}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="py-4 text-right text-gray-500 text-sm">
                     {team.scoreHistory && team.scoreHistory[team.totalScore]
