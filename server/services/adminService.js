@@ -341,7 +341,6 @@ const endRound = async (round) => {
 const getScores = async () => {
   try {
     const teams = await Team.find({}, "teamName scores currentRound");
-
     if (!teams || teams.length === 0) {
       return {
         success: false,
@@ -349,7 +348,6 @@ const getScores = async () => {
         data: null,
       };
     }
-
     return {
       success: true,
       message: "Teams retrieved successfully",
