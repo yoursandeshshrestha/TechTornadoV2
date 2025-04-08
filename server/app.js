@@ -1,7 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const fileUpload = require("express-fileupload");
-const path = require("path");
 const logger = require("./utils/logger");
 const notFoundHandler = require("./utils/notFoundHandler");
 const adminRoutes = require("./routes/adminRoutes");
@@ -18,22 +16,6 @@ const app = express();
 app.use(cors(corsConfig()));
 
 app.use(express.json());
-
-// File upload middleware with configuration from environment
-app.use(
-  fileUpload({
-    limits: {
-      fileSize: parseInt(process.env.FILE_UPLOAD_LIMIT || 10 * 1024 * 1024),
-    },
-    createParentPath: true,
-    useTempFiles: true,
-    tempFileDir: process.env.FILE_UPLOAD_TEMP_DIR || "/tmp/",
-    abortOnLimit: true,
-  })
-);
-
-// Serve static files from the uploads directory
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Request logging middleware
 app.use((req, res, next) => {
