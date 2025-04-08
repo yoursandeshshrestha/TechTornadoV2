@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -11,13 +11,18 @@ import {
   Check,
   Hash,
 } from "lucide-react";
-import { SimpleChallenge as SimpleChallengeType } from "@/data/round2QuestionData";
 import GameHeader from "./GameHeader";
-import SuccessScreen from "./SuccessScreen";
 import { submitAnswer } from "@/utils/apiService";
 
-interface SimpleChallengeProps {
-  challenge: SimpleChallengeType;
+// ✅ Internal type definition
+export interface SimpleChallengeProps {
+  challenge: {
+    id: number;
+    title: string;
+    description: string;
+    hint: string;
+    answer: string;
+  };
   totalQuestions: number;
 }
 
@@ -33,10 +38,32 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  // ✅ Check localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isCompleted =
+        localStorage.getItem(`simple-challenge-${challenge.id}-completed`) ===
+        "true";
+
+      if (isCompleted) {
+        setSuccess(true);
+        setUserAnswer(
+          localStorage.getItem(`simple-challenge-${challenge.id}-answer`) ||
+            challenge.answer
+        );
+        setPointsEarned(
+          Number(
+            localStorage.getItem(`simple-challenge-${challenge.id}-points`)
+          ) || 0
+        );
+      }
+    }
+  }, [challenge.id, challenge.answer]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting) return;
+    if (isSubmitting || success) return;
     setIsSubmitting(true);
 
     try {
@@ -44,8 +71,24 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
 
       if (response.success && response.data) {
         if (response.data.isCorrect) {
-          setPointsEarned(response.data.pointsEarned);
+          const earnedPoints = response.data.pointsEarned;
+          setPointsEarned(earnedPoints);
           setSuccess(true);
+          setUserAnswer(challenge.answer);
+
+          // ✅ Save to localStorage
+          localStorage.setItem(
+            `simple-challenge-${challenge.id}-completed`,
+            "true"
+          );
+          localStorage.setItem(
+            `simple-challenge-${challenge.id}-answer`,
+            challenge.answer
+          );
+          localStorage.setItem(
+            `simple-challenge-${challenge.id}-points`,
+            earnedPoints.toString()
+          );
         } else {
           setErrorMessage("Incorrect answer. Try again.");
           setTimeout(() => setErrorMessage(""), 3000);
@@ -80,18 +123,6 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
       router.push("/challenges");
     }
   };
-
-  if (success) {
-    return (
-      <SuccessScreen
-        title="CHALLENGE SOLVED!"
-        message={`You successfully solved the ${challenge.title} challenge!`}
-        currentQuestion={challenge.id}
-        totalQuestions={totalQuestions}
-        pointsEarned={pointsEarned}
-      />
-    );
-  }
 
   return (
     <div>
@@ -138,20 +169,40 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
             </div>
           )}
 
+          {success && (
+            <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4 mb-6 text-green-300 flex items-start gap-2 animate-fade-in">
+              <Check className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div className="text-sm font-mono">
+                <p className="font-bold">CHALLENGE COMPLETED!</p>
+                <p>You successfully solved the {challenge.title} challenge!</p>
+                <p className="mt-2">Points earned: {pointsEarned}</p>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="mt-auto">
             <div className="space-y-4">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onChange={(e) => !success && setUserAnswer(e.target.value)}
                   placeholder="Enter your answer..."
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xl text-blue-400 placeholder-gray-500 font-mono text-center tracking-widest shadow-inner"
+                  className={`flex-1 px-4 py-3 bg-gray-800 border ${
+                    success
+                      ? "border-green-500 text-green-400 cursor-not-allowed"
+                      : "border-gray-700 text-blue-400"
+                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xl placeholder-gray-500 font-mono text-center tracking-widest shadow-inner`}
+                  disabled={success}
+                  readOnly={success}
                 />
                 <button
                   type="button"
                   onClick={() => setShowHint(!showHint)}
-                  className="px-3 text-yellow-500 hover:bg-gray-800 rounded-lg transition-colors"
+                  className={`px-3 text-yellow-500 hover:bg-gray-800 rounded-lg transition-colors ${
+                    success ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={success}
                 >
                   <Lightbulb className="h-6 w-6" />
                 </button>
@@ -159,17 +210,47 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-blue-500/20 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
+                disabled={isSubmitting || success}
+                className={`w-full px-8 py-3 ${
+                  success
+                    ? "bg-gradient-to-r from-green-600 to-emerald-600"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                } text-white font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border border-blue-500/20 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed`}
               >
                 <span className="relative z-10 flex items-center justify-center font-mono">
-                  <Check className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-                  {isSubmitting ? "SUBMITTING..." : "SUBMIT ANSWER"}
+                  {success ? (
+                    <>
+                      <Check className="h-5 w-5 mr-2" />
+                      CORRECT ANSWER!
+                    </>
+                  ) : isSubmitting ? (
+                    "SUBMITTING..."
+                  ) : (
+                    <>
+                      <Check className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+                      SUBMIT ANSWER
+                    </>
+                  )}
                 </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-600/50 to-indigo-600/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               </button>
             </div>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-400 text-sm">
+              Challenge {challenge.id} of {totalQuestions}
+            </p>
+            <div className="flex justify-center mt-2 space-x-1">
+              {Array.from({ length: totalQuestions }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index + 1 === challenge.id ? "bg-blue-500" : "bg-gray-600"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -183,7 +264,11 @@ const SimpleChallenge: React.FC<SimpleChallengeProps> = ({
         </button>
         <button
           onClick={handleNext}
-          className="px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 text-white rounded-md transition-colors duration-300 flex items-center gap-2"
+          className={`px-4 py-2 ${
+            success
+              ? "bg-green-700/80 hover:bg-green-600/80"
+              : "bg-gray-800/80 hover:bg-gray-700/80"
+          } text-white rounded-md transition-colors duration-300 flex items-center gap-2`}
         >
           Next
           <ArrowRight className="h-4 w-4" />
