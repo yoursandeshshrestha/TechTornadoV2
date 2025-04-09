@@ -147,18 +147,18 @@ const TerminalChallenge: React.FC<TerminalChallengeProps> = ({
                 <Terminal className="h-4 w-4" />
                 <span>terminal@tech-tornado:~$</span>
               </div>
-              <p className="mb-2">cd /challenges</p>
+              <p className="mb-2">cd Desktop</p>
               <div className="flex items-center gap-2 mb-2 text-gray-400 text-sm">
                 <Terminal className="h-4 w-4" />
-                <span>terminal@tech-tornado:/challenges$</span>
+                <span>terminal@tech-tornado:~/Desktop$</span>
               </div>
               <p className="mb-2">ls</p>
               <p className="mb-2 text-blue-400">{challenge.fileName}</p>
               <div className="flex items-center gap-2 mb-2 text-gray-400 text-sm">
                 <Terminal className="h-4 w-4" />
-                <span>terminal@tech-tornado:/challenges$</span>
+                <span>terminal@tech-tornado:~/Desktop$</span>
               </div>
-              <p className="mb-2">./{challenge.fileName}</p>
+              <p className="mb-2">./a.out</p>
               <p className="mb-2 text-yellow-400">
                 Enter password to decrypt secret message:
               </p>
@@ -194,20 +194,21 @@ const TerminalChallenge: React.FC<TerminalChallengeProps> = ({
           {showInstructions && (
             <div className="bg-gray-800/80 border border-blue-500/30 rounded-lg p-4 mb-6 text-white text-sm">
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Open Terminal on your system.</li>
+                <li>
+                  Open Terminal:{" "}
+                  <code className="bg-gray-700 px-1 rounded">
+                    Ctrl + Alt + T
+                  </code>
+                </li>
                 <li>
                   Navigate to the directory with the C program:{" "}
                   <code className="bg-gray-700 px-1 rounded">cd Desktop</code>
                 </li>
                 <li>
-                  Compile the program:{" "}
+                  Run the program directly:{" "}
                   <code className="bg-gray-700 px-1 rounded">
-                    cc {challenge.fileName}
+                    ./{challenge.fileName}
                   </code>
-                </li>
-                <li>
-                  Run the program:{" "}
-                  <code className="bg-gray-700 px-1 rounded">./a.out</code>
                 </li>
                 <li>
                   Enter the correct password to reveal the secret message.
