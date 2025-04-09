@@ -19,6 +19,11 @@ const TimerHeader: React.FC<TimerHeaderProps> = ({
   isPaused,
 }) => {
   const formatTime = (seconds: number): string => {
+    // Handle invalid values
+    if (typeof seconds !== "number" || isNaN(seconds) || seconds < 0) {
+      return "00:00"; // Default fallback when time is invalid
+    }
+
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
