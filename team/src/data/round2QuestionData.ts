@@ -67,12 +67,13 @@ export const pdfChallenges: PDFChallenge[] = [
   },
   {
     id: 2,
-    title: "AI Art Generator",
-    description: "Name the AI tool that can turn text into art.",
-    hint: "Name sounds like a famous painter. Developed by OpenAI. Visualizes words.",
-    pdfUrl: "PaintMyText.pdf",
-    password: "DALL·E",
-    secretMessage: "ArtByWords",
+    title: "Developer Favorite",
+    description:
+      "This file is locked with a word that means writing instructions for computers.",
+    hint: "It starts with “C”, Developers do it every day, It's how software is made.",
+    pdfUrl: "EasyCode.pdf",
+    password: "Code",
+    secretMessage: "StartWithSimple",
   },
   {
     id: 3,
@@ -86,8 +87,9 @@ export const pdfChallenges: PDFChallenge[] = [
   {
     id: 4,
     title: "AI Logic Riddle",
-    description: "Solve the riddle to unlock this document.",
-    hint: "I am a number. When multiplied by 2, then added to 8, the result is 30.",
+    description:
+      "I am a number. When multiplied by 2, then added to 8, the result is 30.",
+    hint: "No hints available",
     pdfUrl: "AI_LogicLock.pdf",
     password: "11",
     secretMessage: "BrainsOverBots",
@@ -95,7 +97,7 @@ export const pdfChallenges: PDFChallenge[] = [
   {
     id: 5,
     title: "Pattern Sequence Puzzle",
-    description: "Crack the pattern to unlock the document.",
+    description: "Sequence: C, E, H, L, Q, ?",
     hint: "Pattern of increasing letter gaps: +2, +3, +4, +5, +6",
     pdfUrl: "SecretPattern.pdf",
     password: "W",
@@ -145,7 +147,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     title: "Autopilot Activation",
     description: "Activate autopilot mode by entering the correct password.",
     hints: [
-      "Cube number less than 30",
+      "Cube number less than 30 more then 20",
       "Tesla’s AI system",
       "Roman numeral for 1",
     ],
@@ -195,49 +197,54 @@ export const simpleChallenges: SimpleChallenge[] = [
   {
     id: 13,
     title: "Sequence Puzzle",
-    description: "What comes next in the sequence: 2 → 6 → 18 → 54 → ?",
+    description:
+      "Can you crack the secret growth formula?: 2 → 6 → 18 → 54 → ?",
     hint: "Multiply each by 3.",
     answer: "162",
   },
   {
     id: 14,
     title: "Unscramble Puzzle",
-    description: "Unscramble: XEALA",
+    description:
+      "Which AI assistant is hiding in this jumbled mess? Scrambled: XEALA",
     hint: "Amazon's assistant.",
     answer: "Alexa",
   },
   {
     id: 15,
     title: "Pattern Puzzle",
-    description: "Sequence: G → J → N → S → ?",
+    description:
+      "Can you find the next letter in this growing pattern? Sequence: G → J → N → S → ?",
     hint: "Pattern: +3, +4, +5, +6",
     answer: "Y",
   },
   {
     id: 16,
     title: "Word Connect",
-    description: "Echo, Alexa, Siri — what connects them?",
+    description: "What’s the one word that connects Echo, Alexa, and Siri?",
     hint: "Think of their common role.",
     answer: "Assistant",
   },
   {
     id: 17,
     title: "Common Link",
-    description: "Tesla, EV, Charger — what's the link?",
+    description: "What’s the power source that links Tesla, EV, and Charger?",
     hint: "All powered by?",
     answer: "Electric",
   },
   {
     id: 18,
     title: "Missing Letter Puzzle",
-    description: "A, C, F, J, O, ?",
+    description:
+      "A tricky alphabetical puzzle! Can you fill in the blank?, Sequence: A, C, F, J, O, ?",
     hint: "Gaps increase: +2, +3, +4, +5",
     answer: "U",
   },
   {
     id: 19,
     title: "T9 Pattern Puzzle",
-    description: "J, L, O, S, ?",
+    description:
+      "Which letter completes the T9 mobile keypad pattern?, Sequence: J, L, O, S, ?",
     hint: "Letters by mobile keypad numbers.",
     answer: "Z",
   },
