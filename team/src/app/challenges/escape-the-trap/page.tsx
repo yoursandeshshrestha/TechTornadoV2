@@ -16,11 +16,11 @@ import LoadingScreen from "./components/LoadingScreen";
 import GameOverScreen from "./components/GameOverScreen";
 import RoundNotActiveScreen from "../../../components/common/RoundNotActiveScreen";
 import CompletionScreen from "./components/CompletionScreen";
-import MaxAttemptsScreen from "./components/MaxAttemptsScreen";
 import ChallengeDescription from "./components/ChallengeDescription";
 import AnswerForm from "./components/AnswerForm";
 import TimerHeader from "./components/TimerHeader";
 import VisualEffects from "./components/VisualEffects";
+import { PartialCompletionScreen } from "./components/PartialCompletionScreen";
 
 // Interface for tracking challenge attempts/completion
 interface ChallengeState {
@@ -241,10 +241,15 @@ const EscapeTheTrap: React.FC = () => {
             const remainingMs = Math.max(0, endTime - currentTime);
             const remainingSeconds = Math.floor(remainingMs / 1000);
 
+            // In the getGameState function
             const timeToUse =
-              data.remainingTime !== null
+              typeof data.remainingTime === "number" &&
+              !isNaN(data.remainingTime)
                 ? data.remainingTime
-                : remainingSeconds;
+                : typeof remainingSeconds === "number" &&
+                  !isNaN(remainingSeconds)
+                ? remainingSeconds
+                : DEFAULT_GAME_DURATION;
 
             setTimeLeft(timeToUse);
           }
@@ -498,7 +503,7 @@ const EscapeTheTrap: React.FC = () => {
               }
               setTimeout(() => {
                 router.push("/");
-              }, 2000);
+              }, 8000);
             }
           }, 2000);
         } else {
@@ -548,18 +553,13 @@ const EscapeTheTrap: React.FC = () => {
 
   // Show appropriate screen if all challenges have been attempted
   if (allChallengesAttempted) {
-    // Check if any challenges were completed successfully
-    const anyCompleted =
-      challengeState &&
-      Object.values(challengeState.completed).some((value) => value === true);
-
-    if (anyCompleted) {
-      // At least one challenge was completed, show completion screen
-      return <CompletionScreen onClick={goToHome} />;
-    } else {
-      // No challenges were completed (all maxed out attempts), show max attempts screen
-      return <MaxAttemptsScreen onClick={goToHome} redirectTime={5} />;
-    }
+    // Instead of the simple check, use our new component that shows specific challenge completion status
+    return (
+      <PartialCompletionScreen
+        onClick={goToHome}
+        challengeState={challengeState}
+      />
+    );
   }
 
   // Check if current round is active
