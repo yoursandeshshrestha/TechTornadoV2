@@ -127,7 +127,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     ],
     password: "7SiriV",
     secretMessage: "SkySurveillanceActive",
-    fileName: "drone_AI_command.c",
+    fileName: "drone_AI_command",
   },
   {
     id: 8,
@@ -140,7 +140,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     ],
     password: "7CopilotM",
     secretMessage: "InnovationNeverStops",
-    fileName: "meta_lab_protocol.c",
+    fileName: "meta_lab_protocol",
   },
   {
     id: 9,
@@ -153,7 +153,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     ],
     password: "8AutopilotI",
     secretMessage: "AutonomousModeEngaged",
-    fileName: "autopilot_activation.c",
+    fileName: "autopilot_activation",
   },
   {
     id: 10,
@@ -162,7 +162,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     hints: ["Half of 10", "Meta’s VR platform", "Roman numeral for 50"],
     password: "5HorizonL",
     secretMessage: "EnteringVirtualWorld",
-    fileName: "VR_Access_Gateway.c",
+    fileName: "VR_Access_Gateway",
   },
   {
     id: 11,
@@ -175,7 +175,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     ],
     password: "2DALLEC",
     secretMessage: "DeepfakeDefenseOnline",
-    fileName: "deepfake_detector.c",
+    fileName: "deepfake_detector",
   },
   {
     id: 12,
@@ -188,7 +188,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     ],
     password: "5ChatGPTX",
     secretMessage: "TalkTechActivated",
-    fileName: "language_model_init.c",
+    fileName: "language_model_init",
   },
 ];
 

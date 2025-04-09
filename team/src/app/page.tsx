@@ -73,13 +73,11 @@ export default function Dashboard() {
     toast.success("Logged out successfully");
   };
 
-  // Function to get the appropriate button color based on challenge color
   const getButtonColor = (color: string) => {
     const colorMap: Record<string, string> = {
       blue: "bg-blue-600 hover:bg-blue-700",
       purple: "bg-purple-600 hover:bg-purple-700",
       indigo: "bg-indigo-600 hover:bg-indigo-700",
-      // Add more color mappings as needed
     };
     return colorMap[color] || "bg-gray-600 hover:bg-gray-700";
   };
