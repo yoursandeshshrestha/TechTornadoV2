@@ -1,32 +1,34 @@
 import { Challenge } from "../types/index";
-import leettable from "../../../../../public/round3question2.jpg";
+import leettable from "../../../../../public/round3question2.png";
 
 export const challenges: Challenge[] = [
   {
     id: 1,
-    title: "Encrypted Message",
+    title: "Escape the Trap – Final Protocol",
     description:
-      "A hacker has locked your system. The only way to escape is by deciphering their encrypted message. But be warned, each word has a different shift pattern.",
-    encryptedMessage: "WKLV LV D WHVW",
+      "The final chamber is sealed. An encrypted message flashes on the control screen. You have three attempts to decrypt it and unlock the emergency override. Fail — and the trap remains closed forever.",
+    encryptedMessage: "UYO EHAV DEXA EHT EHAV DEXA HZDK",
     hints: [
-      "Shift the first word back by 3.",
-      "Shift the second word back by 3.",
-      "Shift the third word back by 3.",
+      "Replace the last word with the first.",
+      "Replace the fourth word with the last.",
+      "Replace the fifth word with the second.",
+      "Replace the third letter of the 1st, 4th, and 7th word with the fourth letter of that word.",
+      "Rotate the first letter of each word to the end.",
     ],
-    answer: "",
+    answer: "YOU HAVE ESCAPED THE TORNADO",
   },
   {
     id: 2,
     title: "Leet Code Password",
     description:
-      "A notorious hacker has locked you out of your system! The only way to regain access is by decoding their password written in 1337 (leet) language. But be warned, the hacker is tricky!",
+      "A malicious program that hides in plain sight. Combine it with the year reality was questioned — but in reverse. End it with what every rogue AI desires. Decode the 1337 to find the key.\n\nAnswer Format: Word-Number-Word (All characters in leet speak)",
     hints: [
-      "The password follows a Word-Number-Word pattern.",
-      "The first word is a ferocious animal (written in leet).",
-      "The number in the middle is the year a famous hacking movie was released (1995 - Hackers).",
-      "The last word is what a hacker loves the most - 'Access', written in leet!",
+      "The first word is a malicious program that hides in plain sight.",
+      "The number is the year reality was questioned (The Matrix - 1999), but in reverse.",
+      "The last word is what every rogue AI desires.",
+      "Check the leet (1337) table for translations.",
     ],
-    answer: "",
+    answer: "7|0_4|9991(0|7|0|",
     image: leettable,
   },
 ];
