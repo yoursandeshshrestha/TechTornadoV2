@@ -147,7 +147,7 @@ export const terminalChallenges: TerminalChallenge[] = [
     title: "Autopilot Activation",
     description: "Activate autopilot mode by entering the correct password.",
     hints: [
-      "Cube number less than 30 more then 20",
+      "Cube number less than 20",
       "Tesla’s AI system",
       "Roman numeral for 1",
     ],
