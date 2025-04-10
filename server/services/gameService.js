@@ -295,7 +295,7 @@ const updateLeaderboard = async () => {
     });
 
     // Return top 10
-    return leaderboardData.slice(0, 10);
+    return leaderboardData.slice(0, 100);
   } catch (error) {
     logger.error("Error updating leaderboard:", error);
     throw error;
